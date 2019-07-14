@@ -5,6 +5,7 @@ const WIDTH = window.innerWidth
 const HEIGHT = window.innerHeight
 
 let enemies = []
+let loop
 
 const player = {
     x: WIDTH / 2,
@@ -16,6 +17,7 @@ const player = {
     face: 'R',
     bullets: [],
     limitShot: 3,
+    hp: 3
 }
 
 const enemy1 = () => {
@@ -54,7 +56,7 @@ init = () => {
     window.addEventListener('keydown', onKeyDown)
     window.addEventListener('keyup', onKeyUp)
 
-    for(let i = 0; i < Math.random() * 5; i++) {
+    for(let i = 0; i < Math.floor(Math.random() * 5); i++) {
         let enemy = enemy1()
         enemies.push(enemy)
     }
@@ -63,7 +65,10 @@ init = () => {
 }
 
 update = () => {
-    draw()
+    if(player.hp === 0) {
+        gameOver()
+    } else {
+        draw()
 
     if(left && player.x > 0) {
         player.x -= player.speed
@@ -126,10 +131,21 @@ update = () => {
         } else if (enemy.y < player.y) {
             enemy.y += enemy.speed
         }
+
+        if( enemy.x + enemy.w > player.x &&
+            enemy.x < player.x + player.w &&
+            enemy.y + enemy.h > player.y &&
+            enemy.y < player.y + player.h) {
+                player.hp--
+                enemy.x += Math.floor(Math.random() * 128)
+                enemy.y += Math.floor(Math.random() * 128)
+            }
     })
 
 
-    requestAnimationFrame(update)
+    loop = requestAnimationFrame(update)
+    }
+
 }
 
 draw = () => {
@@ -148,6 +164,23 @@ draw = () => {
         ctx.fillStyle = enemy.color
         ctx.fillRect(enemy.x, enemy.y, enemy.w, enemy.h)
     })
+
+    
+    for(let i = 0; i < player.hp; i++){
+        ctx.fillStyle = 'white'
+        ctx.font = '30px Arial'
+        ctx.fillText("<3", 40 + (40 * i), 40)
+    }
+}
+
+gameOver = () => {
+    ctx.fillStyle = 'black'
+    ctx.fillRect(0, 0, WIDTH, HEIGHT)
+
+    ctx.fillStyle = 'white'
+    ctx.font = '30px Arial'
+    ctx.fillText("Game Over", WIDTH / 2, HEIGHT / 2)
+    requestAnimationFrame(gameOver)
 }
 
 onKeyDown = e => {
