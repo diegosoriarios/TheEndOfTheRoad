@@ -13,6 +13,7 @@ const player = {
     color: 'white',
     face: 'R',
     bullets: [],
+    limitShot: 3,
 }
 
 const bullet = (x, y, w, h, direction) => {
@@ -113,10 +114,12 @@ onKeyDown = e => {
         case 32:
             let newBullet = bullet( player.x + (player.w / 2), 
                                     player.y + (player.h / 2), 
-                                    player.x / 10, 
-                                    player.x / 10, 
+                                    player.w / 10, 
+                                    player.w / 10, 
                                     player.face )
-            player.bullets.push(newBullet)
+            if(player.bullets.length < player.limitShot) {
+                player.bullets.push(newBullet)
+            }
     }
 }
 
