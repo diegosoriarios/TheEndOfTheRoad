@@ -5,6 +5,7 @@ const WIDTH = window.innerWidth
 const HEIGHT = window.innerHeight
 
 let enemies = []
+let obstacles = []
 let loop
 
 const player = {
@@ -28,7 +29,34 @@ const enemy1 = () => {
         h: HEIGHT / 10,
         speed: 2,
         color: 'green',
-        hp: 3
+        hp: 3,
+        level: 1
+    }
+}
+
+const enemy2 = () => {
+    return {
+        x: Math.floor(Math.random() * (WIDTH - (WIDTH / 12))),
+        y: Math.floor(Math.random() * (HEIGHT - (HEIGHT / 10))),
+        w: WIDTH / 12,
+        h: HEIGHT / 10,
+        speed: 3,
+        color: 'blue',
+        hp: 3,
+        level: 2,
+    }
+}
+
+const enemy3 = () => {
+    return {
+        x: Math.floor(Math.random() * (WIDTH - (WIDTH / 12))),
+        y: Math.floor(Math.random() * (HEIGHT - (HEIGHT / 10))),
+        w: WIDTH / 12,
+        h: HEIGHT / 10,
+        speed: 3,
+        color: 'brown',
+        hp: 3,
+        level: 3,
     }
 }
 
@@ -44,6 +72,7 @@ const bullet = (x, y, w, h, direction) => {
     }
 }
 
+
 let left = false
 let right = false
 let up = false
@@ -56,11 +85,7 @@ init = () => {
     window.addEventListener('keydown', onKeyDown)
     window.addEventListener('keyup', onKeyUp)
 
-    for(let i = 0; i < Math.floor(Math.random() * 5); i++) {
-        let enemy = enemy1()
-        enemies.push(enemy)
-    }
-
+    generateMap()
     update()
 }
 
@@ -68,58 +93,60 @@ update = () => {
     if(player.hp === 0) {
         gameOver()
     } else {
-        draw()
+        draw()        
 
-    if(left && player.x > 0) {
-        player.x -= player.speed
-    } else if(right && player.x + player.w < WIDTH) {
-        player.x += player.speed
-    }
-    if(up && player.y > 0) {
-        player.y -= player.speed
-    } else if(down && player.y + player.h < HEIGHT) {
-        player.y += player.speed
-    }
+        if(left && player.x > 25) {
+            player.x -= player.speed
+        } else if(right && player.x + player.w < WIDTH - 25) {
+            player.x += player.speed
+        }
+        if(up && player.y > 25) {
+            player.y -= player.speed
+        } else if(down && player.y + player.h < HEIGHT - 25) {
+            player.y += player.speed
+        }
 
-    player.bullets.forEach(bullet => {
-        if(!isOutOfScreen(bullet)){
-            switch(bullet.direction) {
-                case 'U':
-                    bullet.y -= bullet.speed
-                    break
-                case 'D':
-                    bullet.y += bullet.speed
-                    break
-                case 'L':
-                    bullet.x -= bullet.speed
-                    break
-                case 'R':
-                    bullet.x += bullet.speed
-                    break
+        player.bullets.forEach(bullet => {
+            
+            
+            if(!isOutOfScreen(bullet) || isColliding){
+                switch(bullet.direction) {
+                    case 'U':
+                        bullet.y -= bullet.speed
+                        break
+                    case 'D':
+                        bullet.y += bullet.speed
+                        break
+                    case 'L':
+                        bullet.x -= bullet.speed
+                        break
+                    case 'R':
+                        bullet.x += bullet.speed
+                        break
+                }
+
+                enemies.forEach(enemy => {
+                    if(checkColision(bullet, enemy)) {
+                            enemy.hp--
+                            player.bullets.splice(player.bullets.indexOf(bullet), 1)
+                            console.log(enemy.hp)
+                        }
+                })
+            } else {
+                player.bullets.splice(player.bullets.indexOf(bullet), 1)
             }
-
-            enemies.forEach(enemy => {
-                if( bullet.x + bullet.w > enemy.x && 
-                    bullet.x < enemy.x + enemy.w &&
-                    bullet.y + bullet.h > enemy.y &&
-                    bullet.y < enemy.y + enemy.h ) {
-                        enemy.hp--
-                        player.bullets.splice(player.bullets.indexOf(bullet), 1)
-                        console.log(enemy.hp)
-                    }
-            })
-
-        } else {
-            player.bullets.splice(player.bullets.indexOf(bullet), 1)
-        }
-    })
+        })
 
 
-    enemies.forEach(enemy => {
-        if(enemy.hp === 0) {
-            enemies.splice(enemies.indexOf(enemy), 1)
-        }
+enemies.forEach(enemy => {
+    if(enemy.hp === 0) {
+        enemies.splice(enemies.indexOf(enemy), 1)
+    }
 
+    /**
+     * Follow the player
+     */
+    if(enemy.level === 1){
         if(enemy.x > player.x) {
             enemy.x -= enemy.speed
         } else if (enemy.x < player.x) {
@@ -131,19 +158,44 @@ update = () => {
         } else if (enemy.y < player.y) {
             enemy.y += enemy.speed
         }
+    }
+    /**
+     * V Move
+     */
+    else if(enemy.level === 2) {
+        let vSpeed = enemy.speed
 
-        if( enemy.x + enemy.w > player.x &&
-            enemy.x < player.x + player.w &&
-            enemy.y + enemy.h > player.y &&
-            enemy.y < player.y + player.h) {
-                player.hp--
-                enemy.x += Math.floor(Math.random() * 128)
-                enemy.y += Math.floor(Math.random() * 128)
-            }
-    })
+        enemy.y += vSpeed
+
+        if(isOutOfScreen(enemy)) {
+            enemy.speed = -enemy.speed
+        }
+    }
+
+    /**
+     * H Move
+     */
+    else if(enemy.level === 3) {
+        let vSpeed = enemy.speed
+
+        enemy.x += vSpeed
+
+        if(isOutOfScreen(enemy)) {
+            enemy.speed = -enemy.speed
+        }
+    }
+
+    
+
+    if(checkColision(enemy, player)) {
+        player.hp--
+        enemy.x += Math.floor(Math.random() * 128 + 64)
+        enemy.y += Math.floor(Math.random() * 128 + 64)
+    }
+})
 
 
-    loop = requestAnimationFrame(update)
+loop = requestAnimationFrame(update)
     }
 
 }
@@ -165,11 +217,47 @@ draw = () => {
         ctx.fillRect(enemy.x, enemy.y, enemy.w, enemy.h)
     })
 
+    obstacles.forEach(obstacle => {
+        ctx.fillStyle = obstacle.color
+        ctx.fillRect(obstacle.x, obstacle.y, obstacle.w, obstacle.h)
+    })
+
     
     for(let i = 0; i < player.hp; i++){
         ctx.fillStyle = 'white'
         ctx.font = '30px Arial'
         ctx.fillText("<3", 40 + (40 * i), 40)
+    }
+}
+
+generateMap = () => {
+    for(let i = 0; i < Math.floor(Math.random() * 5 + 2); i++) {
+        let enemy
+        switch(Math.floor(Math.random() * 4)){
+            case 0:
+                enemy = enemy1()
+                break
+            case 1:
+                enemy = enemy2()
+                break
+            case 2:
+                enemy = enemy3()
+                break
+            default:
+                enemy = enemy1()
+        }
+        //enemies.push(enemy)
+    }
+
+    for(let i = 0; i < Math.floor(Math.random() * 10 + 1); i++) {
+        let obstacle = {
+            x: Math.floor(Math.random() * (WIDTH - 32)),
+            y: Math.floor(Math.random() * (HEIGHT - 32)),
+            w: 32,
+            h: 32,
+            color: 'grey'
+        }
+        obstacles.push(obstacle)
     }
 }
 
@@ -227,6 +315,16 @@ onKeyUp = e => {
         case 68 || 39:
             right = false
     }
+}
+
+checkColision = (obj1, obj2) => {
+    if( obj1.x < obj2.x + obj2.w &&
+        obj1.x + obj1.w > obj2.x &&
+        obj1.y < obj2.y + obj2.h &&
+        obj1.y + obj1.h > obj2.y) {
+            return true
+        }
+    return false
 }
 
 isOutOfScreen = object => {
