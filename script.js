@@ -4,6 +4,8 @@ const ctx = canvas.getContext('2d')
 const WIDTH = window.innerWidth
 const HEIGHT = window.innerHeight
 
+let enemies = []
+
 const player = {
     x: WIDTH / 2,
     y: HEIGHT / 2,
@@ -14,6 +16,18 @@ const player = {
     face: 'R',
     bullets: [],
     limitShot: 3,
+}
+
+const enemy1 = () => {
+    return {
+        x: Math.floor(Math.random() * (WIDTH - (WIDTH / 12))),
+        y: Math.floor(Math.random() * (HEIGHT - (HEIGHT / 10))),
+        w: WIDTH / 12,
+        h: HEIGHT / 10,
+        speed: 2,
+        color: 'green',
+        hp: 3
+    }
 }
 
 const bullet = (x, y, w, h, direction) => {
@@ -39,6 +53,12 @@ init = () => {
 
     window.addEventListener('keydown', onKeyDown)
     window.addEventListener('keyup', onKeyUp)
+
+    for(let i = 0; i < Math.random() * 5; i++) {
+        let enemy = enemy1()
+        enemies.push(enemy)
+    }
+
     update()
 }
 
@@ -72,10 +92,42 @@ update = () => {
                     bullet.x += bullet.speed
                     break
             }
+
+            enemies.forEach(enemy => {
+                if( bullet.x + bullet.w > enemy.x && 
+                    bullet.x < enemy.x + enemy.w &&
+                    bullet.y + bullet.h > enemy.y &&
+                    bullet.y < enemy.y + enemy.h ) {
+                        enemy.hp--
+                        player.bullets.splice(player.bullets.indexOf(bullet), 1)
+                        console.log(enemy.hp)
+                    }
+            })
+
         } else {
             player.bullets.splice(player.bullets.indexOf(bullet), 1)
         }
     })
+
+
+    enemies.forEach(enemy => {
+        if(enemy.hp === 0) {
+            enemies.splice(enemies.indexOf(enemy), 1)
+        }
+
+        if(enemy.x > player.x) {
+            enemy.x -= enemy.speed
+        } else if (enemy.x < player.x) {
+            enemy.x += enemy.speed
+        }
+    
+        if(enemy.y > player.y) {
+            enemy.y -= enemy.speed
+        } else if (enemy.y < player.y) {
+            enemy.y += enemy.speed
+        }
+    })
+
 
     requestAnimationFrame(update)
 }
@@ -90,6 +142,11 @@ draw = () => {
     player.bullets.forEach(bullet => {
         ctx.fillStyle = bullet.color
         ctx.fillRect(bullet.x, bullet.y, bullet.w, bullet. h)
+    })
+
+    enemies.forEach(enemy => {
+        ctx.fillStyle = enemy.color
+        ctx.fillRect(enemy.x, enemy.y, enemy.w, enemy.h)
     })
 }
 
