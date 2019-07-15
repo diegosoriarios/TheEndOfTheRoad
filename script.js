@@ -123,14 +123,14 @@ update = () => {
     } else {
         draw()        
 
-        if(left && player.x > 25) {
+        if(left) {
             player.x -= player.speed
-        } else if(right && player.x + player.w < WIDTH - 25) {
+        } else if(right) {
             player.x += player.speed
         }
-        if(up && player.y > 25) {
+        if(up) {
             player.y -= player.speed
-        } else if(down && player.y + player.h < HEIGHT - 25) {
+        } else if(down) {
             player.y += player.speed
         }        
 
@@ -281,7 +281,6 @@ update = () => {
             })
         })
 
-
         loop = requestAnimationFrame(update)
     }
 
@@ -376,9 +375,18 @@ generateMap = () => {
             h: 25,
             color: 'grey'
         }
+
+        let door = {
+            x: 0,
+            y: HEIGHT / 2 - (player.h / 1.5),
+            w: 25,
+            h: player.h * 1.5,
+            color: 'brown'
+        }
         
         obstacles.push(obstacle2)
         obstacles.push(obstacle3)
+        obstacles.push(door)
     } else {
         let obstacle = {
             x: 0,
@@ -403,10 +411,19 @@ generateMap = () => {
             h: HEIGHT,
             color: 'grey'   
         }
+
+        let door = {
+            x: WIDTH / 2 - (player.w / 1.5),
+            y: 0,
+            w: player.h * 1.5,
+            h: 25,
+            color: 'brown'
+        }
         
         obstacles.push(obstacle)
         obstacles.push(obstacle2)
         obstacles.push(obstacle3)
+        obstacles.push(door)
     }
 
     let obstacle3 = {
