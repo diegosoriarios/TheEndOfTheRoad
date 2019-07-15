@@ -7,6 +7,17 @@ const HEIGHT = window.innerHeight
 let enemies = []
 let obstacles = []
 let loop
+let positionsX = [
+    [50],
+    [WIDTH / 2 - 25],
+    [WIDTH - 100]
+]
+
+let positionsY = [
+    [50],
+    [HEIGHT / 2 - 25],
+    [HEIGHT - 100]
+]
 
 const player = {
     x: WIDTH / 2,
@@ -23,8 +34,10 @@ const player = {
 
 const enemy1 = () => {
     return {
-        x: Math.floor(Math.random() * (WIDTH - (WIDTH / 12))),
-        y: Math.floor(Math.random() * (HEIGHT - (HEIGHT / 10))),
+        //x: Math.floor(Math.random() * (WIDTH - (WIDTH / 12))),
+        //y: Math.floor(Math.random() * (HEIGHT - (HEIGHT / 10))),
+        x: parseInt(positionsX[Math.floor(Math.random() * positionsX.length)]),
+        y: parseInt(positionsY[Math.floor(Math.random() * positionsY.length)]),
         w: WIDTH / 24,
         h: WIDTH / 24,
         speed: 2,
@@ -36,8 +49,8 @@ const enemy1 = () => {
 
 const enemy2 = () => {
     return {
-        x: Math.floor(Math.random() * (WIDTH - (WIDTH / 12))),
-        y: Math.floor(Math.random() * (HEIGHT - (HEIGHT / 10))),
+        x: parseInt(positionsX[Math.floor(Math.random() * positionsX.length)]),
+        y: parseInt(positionsY[Math.floor(Math.random() * positionsY.length)]),
         w: WIDTH / 24,
         h: WIDTH / 24,
         speed: 3,
@@ -49,14 +62,29 @@ const enemy2 = () => {
 
 const enemy3 = () => {
     return {
-        x: Math.floor(Math.random() * (WIDTH - (WIDTH / 12))),
-        y: Math.floor(Math.random() * (HEIGHT - (HEIGHT / 10))),
+        x: parseInt(positionsX[Math.floor(Math.random() * positionsX.length)]),
+        y: parseInt(positionsY[Math.floor(Math.random() * positionsY.length)]),
         w: WIDTH / 24,
         h: WIDTH / 24,
         speed: 3,
         color: 'brown',
         hp: 3,
         level: 3,
+    }
+}
+
+const enemy4 = () => {
+    return {
+        x: parseInt(positionsX[Math.floor(Math.random() * positionsX.length)]),
+        y: parseInt(positionsY[Math.floor(Math.random() * positionsY.length)]),
+        w: WIDTH / 24,
+        h: WIDTH / 24,
+        speed: 3,
+        color: 'yellow',
+        hp: 3,
+        level: 4,
+        movements: 60,
+        direction: 'D'
     }
 }
 
@@ -188,6 +216,25 @@ update = () => {
                 }
             }
 
+            else if(enemy.level === 4) {
+                let directions = ['U', 'D', 'L', 'R']
+                if(enemy.direction === 'U' && enemy.y > 25){
+                    enemy.y -=enemy.speed
+                } else if(enemy.direction === 'D' && enemy.y + enemy.h < HEIGHT - 25){
+                    enemy.y +=enemy.speed
+                } else if(enemy.direction === 'R' && enemy.x + enemy.w < WIDTH - 25){
+                    enemy.x +=enemy.speed
+                } else if(enemy.direction === 'L' && enemy.x > 25){
+                    enemy.x -=enemy.speed
+                }
+
+                enemy.movements--
+                if(enemy.movements <= 0) {
+                    enemy.movements = 60
+                    enemy.direction = directions[Math.floor(Math.random() * directions.length)]
+                }
+            }
+
             
 
             if(checkColision(enemy, player)) {
@@ -197,16 +244,28 @@ update = () => {
                         break;
                     case 2:
                         if(enemy.y > player.y){
-                            enemy.y += Math.floor(Math.random() * 128 + 64)    
+                            enemy.y += Math.floor(Math.random() * 256 + 128)    
                         } else if(enemy.y < player.y + player.h){
-                            enemy.y -= Math.floor(Math.random() * 128 + 64)
+                            enemy.y -= Math.floor(Math.random() * 256 + 128)
                         }
                         break;
                     case 3:
                         if(enemy.x > player.x + player.w) {
-                            enemy.x -= Math.floor(Math.random() * 128 + 64)
+                            enemy.x -= Math.floor(Math.random() * 256 + 128)
                         } else {
-                            enemy.x += Math.floor(Math.random() * 128 + 64)
+                            enemy.x += Math.floor(Math.random() * 256 + 128)
+                        }
+                    case 4:
+                        if(enemy.x > WIDTH / 2) {
+                            enemy.x -= Math.floor(Math.random() * 256 + 128)
+                        } else {
+                            enemy.x += Math.floor(Math.random() * 256 + 128)
+                        }
+
+                        if(enemy.y > HEIGHT / 2) {
+                            enemy.y -= Math.floor(Math.random() * 256 + 128)
+                        } else {
+                            enemy.y += Math.floor(Math.random() * 256 + 128)
                         }
                 }
             }
@@ -215,6 +274,8 @@ update = () => {
                 if(checkColision(enemy, obstacle)) {
                     if(enemy.level !== 1) {
                         enemy.speed = -enemy.speed
+                    } else if(enemy.level === 4) {
+
                     }
                 }
             })
@@ -259,7 +320,7 @@ draw = () => {
 generateMap = () => {
     for(let i = 0; i < Math.floor(Math.random() * 5 + 2); i++) {
         let enemy
-        switch(Math.floor(Math.random() * 4)){
+        /*switch(Math.floor(Math.random() * 4)){
             case 0:
                 enemy = enemy1()
                 break
@@ -269,9 +330,12 @@ generateMap = () => {
             case 2:
                 enemy = enemy3()
                 break
+            case 3:
+                enemy = enemy4()
             default:
                 enemy = enemy2()
-        }
+        }*/
+        enemy = enemy4()
         enemies.push(enemy)
     }
 
@@ -285,6 +349,83 @@ generateMap = () => {
         }
         obstacles.push(obstacle)
     }
+
+    if(Math.random() > .5) {
+        let obstacle = {
+            x: 0,
+            y: 0,
+            w: 25,
+            h: HEIGHT / 2 - (player.h / 1.5),
+            color: 'grey'
+        }
+
+        obstacles.push(obstacle)
+
+        let obstacle2 = {
+            x: 0,
+            y: HEIGHT / 2 + (player.h / 1.5),
+            w: 25,
+            h: HEIGHT / 2 - (player.h / 1.5),
+            color: 'grey'
+        }
+
+        let obstacle3 = {
+            x: 0,
+            y: 0,
+            w: WIDTH,
+            h: 25,
+            color: 'grey'
+        }
+        
+        obstacles.push(obstacle2)
+        obstacles.push(obstacle3)
+    } else {
+        let obstacle = {
+            x: 0,
+            y: 0,
+            w: WIDTH / 2 - (player.w / 1.5),
+            h: 25,
+            color: 'grey'
+        }
+
+        let obstacle2 = {
+            x: WIDTH / 2 + (player.w / 1.5),
+            y: 0,
+            w: WIDTH / 2 - (player.w / 1.5),
+            h: 25,
+            color: 'grey'
+        }
+
+        let obstacle3 = {
+            x: 0,
+            y: 0,
+            w: 25,
+            h: HEIGHT,
+            color: 'grey'   
+        }
+        
+        obstacles.push(obstacle)
+        obstacles.push(obstacle2)
+        obstacles.push(obstacle3)
+    }
+
+    let obstacle3 = {
+        x: WIDTH - 25,
+        y: 0,
+        w: 25,
+        h: HEIGHT,
+        color: 'grey'
+    }
+
+    let obstacle4 = {
+        x: 0,
+        y: HEIGHT - 25,
+        w: WIDTH,
+        h: 25,
+        color: 'grey'
+    }
+    obstacles.push(obstacle3)
+    obstacles.push(obstacle4)
 }
 
 gameOver = () => {
@@ -293,7 +434,7 @@ gameOver = () => {
 
     ctx.fillStyle = 'white'
     ctx.font = '30px Arial'
-    ctx.fillText("Game Over", WIDTH / 2 - 15, HEIGHT / 2)
+    ctx.fillText("Game Over", (WIDTH / 2) - 60, HEIGHT / 2)
     requestAnimationFrame(gameOver)
 }
 
