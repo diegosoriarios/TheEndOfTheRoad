@@ -123,16 +123,23 @@ update = () => {
     } else {
         draw()        
 
-        if(left) {
-            player.x -= player.speed
-        } else if(right) {
-            player.x += player.speed
-        }
-        if(up) {
-            player.y -= player.speed
-        } else if(down) {
-            player.y += player.speed
-        }        
+
+        obstacles.forEach(obstacle => {
+            if(left && 
+                obstacle.x > player.x &&
+                obstacle.x + obstacle.w < player.x + player.w &&
+                obstacle.y > player.y &&
+                obstacle.y + obstacle.h < player.y + player.h) {
+                player.x -= player.speed / 10
+            } else if(right) {
+                player.x += player.speed / 10
+            }
+            if(up && player.y > obstacle.y + obstacle.h) {
+                player.y -= player.speed / 5
+            } else if(down && player.y + player.h < obstacle.y) {
+                player.y += player.speed / 5
+            }
+        })
 
         player.bullets.forEach(bullet => {    
             if(!isOutOfScreen(bullet)){
@@ -334,14 +341,14 @@ generateMap = () => {
             default:
                 enemy = enemy2()
         }*/
-        enemy = enemy4()
+        enemy = enemy2()
         enemies.push(enemy)
     }
 
     for(let i = 0; i < Math.floor(Math.random() * 10 + 1); i++) {
         let obstacle = {
-            x: Math.floor(Math.random() * (WIDTH - 32)),
-            y: Math.floor(Math.random() * (HEIGHT - 32)),
+            x: Math.floor(Math.random() * (WIDTH - 32) + 25),
+            y: Math.floor(Math.random() * (HEIGHT - 32) + 25),
             w: WIDTH / 24,
             h: WIDTH / 24,
             color: 'grey'
