@@ -12,7 +12,7 @@ const player = {
     x: WIDTH / 2,
     y: HEIGHT / 2,
     w: WIDTH / 10,
-    h: HEIGHT / 6,
+    h: WIDTH / 10,
     speed: 8,
     color: 'white',
     face: 'R',
@@ -25,8 +25,8 @@ const enemy1 = () => {
     return {
         x: Math.floor(Math.random() * (WIDTH - (WIDTH / 12))),
         y: Math.floor(Math.random() * (HEIGHT - (HEIGHT / 10))),
-        w: WIDTH / 12,
-        h: HEIGHT / 10,
+        w: WIDTH / 24,
+        h: WIDTH / 24,
         speed: 2,
         color: 'green',
         hp: 3,
@@ -38,8 +38,8 @@ const enemy2 = () => {
     return {
         x: Math.floor(Math.random() * (WIDTH - (WIDTH / 12))),
         y: Math.floor(Math.random() * (HEIGHT - (HEIGHT / 10))),
-        w: WIDTH / 12,
-        h: HEIGHT / 10,
+        w: WIDTH / 24,
+        h: WIDTH / 24,
         speed: 3,
         color: 'blue',
         hp: 3,
@@ -51,8 +51,8 @@ const enemy3 = () => {
     return {
         x: Math.floor(Math.random() * (WIDTH - (WIDTH / 12))),
         y: Math.floor(Math.random() * (HEIGHT - (HEIGHT / 10))),
-        w: WIDTH / 12,
-        h: HEIGHT / 10,
+        w: WIDTH / 24,
+        h: WIDTH / 24,
         speed: 3,
         color: 'brown',
         hp: 3,
@@ -104,11 +104,9 @@ update = () => {
             player.y -= player.speed
         } else if(down && player.y + player.h < HEIGHT - 25) {
             player.y += player.speed
-        }
+        }        
 
-        player.bullets.forEach(bullet => {
-            
-            
+        player.bullets.forEach(bullet => {    
             if(!isOutOfScreen(bullet)){
                 switch(bullet.direction) {
                     case 'U':
@@ -152,15 +150,15 @@ update = () => {
              * Follow the player
              */
             if(enemy.level === 1){
-                if(enemy.x > player.x) {
+                if(enemy.x + (enemy.w / 2) > player.x + (player.w / 2)) {
                     enemy.x -= enemy.speed
-                } else if (enemy.x < player.x) {
+                } else if (enemy.x + (enemy.w / 2) < player.x + (player.w / 2)) {
                     enemy.x += enemy.speed
                 }
             
-                if(enemy.y > player.y) {
+                if(enemy.y + (enemy.h / 2) > player.y + (player.h / 2)) {
                     enemy.y -= enemy.speed
-                } else if (enemy.y < player.y) {
+                } else if (enemy.y + (enemy.h / 2) > player.y + (player.h / 2)) {
                     enemy.y += enemy.speed
                 }
             }
@@ -259,37 +257,6 @@ draw = () => {
 }
 
 generateMap = () => {
-    let map = [
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    ]
-
-    for(let i = 0; i < 12; i++){
-        for(let j = 0; j < 20; j++){
-            if(map[i][j] === 1) {
-                let obstacle = {
-                    x: j * (WIDTH / 20),
-                    y: i * (HEIGHT / 12),
-                    w: WIDTH / 20,
-                    h: HEIGHT / 12,
-                    color: 'grey'
-                }
-                obstacles.push(obstacle)
-            }
-        }
-    }
-
-    /*
     for(let i = 0; i < Math.floor(Math.random() * 5 + 2); i++) {
         let enemy
         switch(Math.floor(Math.random() * 4)){
@@ -312,12 +279,12 @@ generateMap = () => {
         let obstacle = {
             x: Math.floor(Math.random() * (WIDTH - 32)),
             y: Math.floor(Math.random() * (HEIGHT - 32)),
-            w: WIDTH / 12,
-            h: HEIGHT / 12,
+            w: WIDTH / 24,
+            h: WIDTH / 24,
             color: 'grey'
         }
         obstacles.push(obstacle)
-    }*/
+    }
 }
 
 gameOver = () => {
