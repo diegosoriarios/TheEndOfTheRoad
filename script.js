@@ -32,7 +32,7 @@ const player = {
     hp: 3
 }
 
-const enemy1 = () => {
+const fly = () => {
     return {
         //x: Math.floor(Math.random() * (WIDTH - (WIDTH / 12))),
         //y: Math.floor(Math.random() * (HEIGHT - (HEIGHT / 10))),
@@ -47,7 +47,7 @@ const enemy1 = () => {
     }
 }
 
-const enemy2 = () => {
+const snake = () => {
     return {
         x: parseInt(positionsX[Math.floor(Math.random() * positionsX.length)]),
         y: parseInt(positionsY[Math.floor(Math.random() * positionsY.length)]),
@@ -60,7 +60,7 @@ const enemy2 = () => {
     }
 }
 
-const enemy3 = () => {
+const snake2 = () => {
     return {
         x: parseInt(positionsX[Math.floor(Math.random() * positionsX.length)]),
         y: parseInt(positionsY[Math.floor(Math.random() * positionsY.length)]),
@@ -73,7 +73,7 @@ const enemy3 = () => {
     }
 }
 
-const enemy4 = () => {
+const scorpion = () => {
     return {
         x: parseInt(positionsX[Math.floor(Math.random() * positionsX.length)]),
         y: parseInt(positionsY[Math.floor(Math.random() * positionsY.length)]),
@@ -94,7 +94,7 @@ const bullet = (x, y, w, h, direction) => {
         y: y,
         w: w,
         h: h,
-        color: 'red',
+        color: 'black',
         speed: 10,
         direction: direction
     }
@@ -123,23 +123,16 @@ update = () => {
     } else {
         draw()        
 
-
-        obstacles.forEach(obstacle => {
-            if(left && 
-                obstacle.x > player.x &&
-                obstacle.x + obstacle.w < player.x + player.w &&
-                obstacle.y > player.y &&
-                obstacle.y + obstacle.h < player.y + player.h) {
-                player.x -= player.speed / 10
-            } else if(right) {
-                player.x += player.speed / 10
-            }
-            if(up && player.y > obstacle.y + obstacle.h) {
-                player.y -= player.speed / 5
-            } else if(down && player.y + player.h < obstacle.y) {
-                player.y += player.speed / 5
-            }
-        })
+        if(left && player.x > 25) {
+            player.x -= player.speed
+        } else if(right && player.x + player.w < WIDTH - 25) {
+            player.x += player.speed
+        }
+        if(up && player.y > 25) {
+            player.y -= player.speed
+        } else if(down && player.y + player.h < HEIGHT - 25) {
+            player.y += player.speed
+        }
 
         player.bullets.forEach(bullet => {    
             if(!isOutOfScreen(bullet)){
@@ -288,31 +281,95 @@ update = () => {
             })
         })
 
+        obstacles.forEach(obstacle => {
+            if(checkColision(obstacle, player)) {
+                player.hp--
+                switch(player.face) {
+                    case 'L':
+                        player.x += Math.floor(Math.random() * 256 + 128)
+                        if(player.x > WIDTH - 25 - player.w) {
+                            player.x = WIDTH - 25 - player.w
+                        }
+                        break
+                    case 'R':
+                        player.x -= Math.floor(Math.random() * 256 + 128)
+                        if(player.x < 25) {
+                            player.x = 25
+                        }
+                        break
+                    case 'U':
+                        player.y += Math.floor(Math.random() * 256 + 128)
+                        if(player.y > HEIGHT - 25 - player.h) {
+                            player.y = HEIGHT - 25 - player.h
+                        }
+                        break
+                    case 'D':
+                        player.y -= Math.floor(Math.random() * 256 + 128)
+                        if(player.y < 25) {
+                            player.y = 25
+                        }
+                }
+            }
+        })
+
         loop = requestAnimationFrame(update)
     }
 
 }
 
 draw = () => {
-    ctx.fillStyle = "black"
+    ctx.fillStyle = "orange"
     ctx.fillRect(0, 0, WIDTH, HEIGHT)
 
-    ctx.fillStyle = player.color
-    ctx.fillRect(player.x, player.y, player.w, player.h)
+    if(player.face === 'R') {
+        let playerImage = new Image();
+        playerImage.src = './assets/player.png';
+        ctx.drawImage(playerImage, player.x, player.y, player.w, player.h)
+    } else if (player.face === 'L') {
+        let playerImage = new Image();
+        playerImage.src = './assets/player.png';
+        ctx.drawImage(playerImage, player.x, player.y, player.w, player.h)
+    } else if (player.face === 'U') {
+        let playerImage = new Image();
+        playerImage.src = './assets/player.png';
+        ctx.drawImage(playerImage, player.x, player.y, player.w, player.h)
+    } else if (player.face === 'D') {
+        let playerImage = new Image();
+        playerImage.src = './assets/player.png';
+        ctx.drawImage(playerImage, player.x, player.y, player.w, player.h)
+    }
+    //ctx.fillStyle = player.color
+    //ctx.fillRect(player.x, player.y, player.w, player.h)
 
     player.bullets.forEach(bullet => {
         ctx.fillStyle = bullet.color
         ctx.fillRect(bullet.x, bullet.y, bullet.w, bullet. h)
     })
 
-    obstacles.forEach(obstacle => {
-        ctx.fillStyle = obstacle.color
-        ctx.fillRect(obstacle.x, obstacle.y, obstacle.w, obstacle.h)
+    obstacles.forEach((obstacle, i) => {
+        if(obstacle.color === 'lightgreen') {
+            let img = new Image();
+            img.src = './assets/cactus1.png';
+            ctx.drawImage(img, obstacle.x, obstacle.y, obstacle.w, obstacle.h)
+        } else {
+            ctx.fillStyle = obstacle.color
+            ctx.fillRect(obstacle.x, obstacle.y, obstacle.w, obstacle.h)
+        }
     })
     
     enemies.forEach(enemy => {
-        ctx.fillStyle = enemy.color
-        ctx.fillRect(enemy.x, enemy.y, enemy.w, enemy.h)
+        if(enemy.level === 2 || enemy.level === 3) {
+            let img = new Image()
+            img.src = './assets/snake.png'    
+            ctx.drawImage(img, enemy.x, enemy.y, enemy.w, enemy.h)
+        } else if(enemy.level === 1){
+            let img = new Image()
+            img.src = './assets/fly.png'    
+            ctx.drawImage(img, enemy.x, enemy.y, enemy.w, enemy.h)
+        } else {
+            ctx.fillStyle = enemy.color
+            ctx.fillRect(enemy.x, enemy.y, enemy.w, enemy.h)
+        }
     })
 
     
@@ -326,22 +383,21 @@ draw = () => {
 generateMap = () => {
     for(let i = 0; i < Math.floor(Math.random() * 5 + 2); i++) {
         let enemy
-        /*switch(Math.floor(Math.random() * 4)){
+        switch(Math.floor(Math.random() * 4)){
             case 0:
-                enemy = enemy1()
+                enemy = fly()
                 break
             case 1:
-                enemy = enemy2()
+                enemy = snake()
                 break
             case 2:
-                enemy = enemy3()
+                enemy = snake2()
                 break
             case 3:
-                enemy = enemy4()
+                enemy = scorpion()
             default:
-                enemy = enemy2()
-        }*/
-        enemy = enemy2()
+                enemy = snake()
+        }
         enemies.push(enemy)
     }
 
@@ -350,19 +406,21 @@ generateMap = () => {
             x: Math.floor(Math.random() * (WIDTH - 32) + 25),
             y: Math.floor(Math.random() * (HEIGHT - 32) + 25),
             w: WIDTH / 24,
-            h: WIDTH / 24,
-            color: 'grey'
+            h: WIDTH / 24 * 2,
+            color: 'lightgreen',
+            type: 'cactus'
         }
         obstacles.push(obstacle)
     }
 
-    if(Math.random() > .5) {
+    /*if(Math.random() > .5) {
         let obstacle = {
             x: 0,
             y: 0,
             w: 25,
             h: HEIGHT / 2 - (player.h / 1.5),
-            color: 'grey'
+            color: 'grey',
+            type: 'wall'
         }
 
         obstacles.push(obstacle)
@@ -450,6 +508,7 @@ generateMap = () => {
     }
     obstacles.push(obstacle3)
     obstacles.push(obstacle4)
+    */
 }
 
 gameOver = () => {
