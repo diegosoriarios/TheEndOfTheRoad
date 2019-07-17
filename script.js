@@ -1,12 +1,13 @@
 const canvas = document.getElementById("canvas")
 const ctx = canvas.getContext('2d')
 
-const WIDTH = window.innerWidth
-const HEIGHT = window.innerHeight
+const WIDTH = 1024
+const HEIGHT = 768
 
 let enemies = []
 let obstacles = []
 let loop
+let shoot = false
 let positionsX = [
     [50],
     [WIDTH / 2 - 25],
@@ -22,8 +23,8 @@ let positionsY = [
 const player = {
     x: WIDTH / 2,
     y: HEIGHT / 2,
-    w: WIDTH / 10,
-    h: WIDTH / 10,
+    w: 128,
+    h: 128,
     speed: 8,
     color: 'white',
     face: 'R',
@@ -38,8 +39,8 @@ const fly = () => {
         //y: Math.floor(Math.random() * (HEIGHT - (HEIGHT / 10))),
         x: parseInt(positionsX[Math.floor(Math.random() * positionsX.length)]),
         y: parseInt(positionsY[Math.floor(Math.random() * positionsY.length)]),
-        w: WIDTH / 24,
-        h: WIDTH / 24,
+        w: 64,
+        h: 64,
         speed: 2,
         color: 'green',
         hp: 3,
@@ -51,8 +52,8 @@ const snake = () => {
     return {
         x: parseInt(positionsX[Math.floor(Math.random() * positionsX.length)]),
         y: parseInt(positionsY[Math.floor(Math.random() * positionsY.length)]),
-        w: WIDTH / 24,
-        h: WIDTH / 24,
+        w: 64,
+        h: 64,
         speed: 3,
         color: 'blue',
         hp: 3,
@@ -64,8 +65,8 @@ const snake2 = () => {
     return {
         x: parseInt(positionsX[Math.floor(Math.random() * positionsX.length)]),
         y: parseInt(positionsY[Math.floor(Math.random() * positionsY.length)]),
-        w: WIDTH / 24,
-        h: WIDTH / 24,
+        w: 64,
+        h: 64,
         speed: 3,
         color: 'brown',
         hp: 3,
@@ -77,7 +78,7 @@ const scorpion = () => {
     return {
         x: parseInt(positionsX[Math.floor(Math.random() * positionsX.length)]),
         y: parseInt(positionsY[Math.floor(Math.random() * positionsY.length)]),
-        w: WIDTH / 24,
+        w: 64,
         h: WIDTH / 24,
         speed: 3,
         color: 'yellow',
@@ -97,6 +98,40 @@ const bullet = (x, y, w, h, direction) => {
         color: 'black',
         speed: 10,
         direction: direction
+    }
+}
+
+const cactus = () => {
+    return {
+        x: Math.floor(Math.random() * (WIDTH - 32) + 25),
+        y: Math.floor(Math.random() * (HEIGHT - 32) + 25),
+        w: 64,
+        h: 64,
+        color: 'lightgreen',
+        type: 'cactus',
+        sprite: Math.floor(Math.random() * 3)
+    }
+}
+
+const box = () => {
+    return {
+        x: Math.floor(Math.random() * (WIDTH - 32) + 25),
+        y: Math.floor(Math.random() * (HEIGHT - 32) + 25),
+        w: 64,
+        h: 64,
+        color: 'lightgreen',
+        type: 'box',
+    }
+}
+
+const bone = () => {
+    return {
+        x: Math.floor(Math.random() * (WIDTH - 32) + 25),
+        y: Math.floor(Math.random() * (HEIGHT - 32) + 25),
+        w: 64,
+        h: 64,
+        color: 'lightgreen',
+        type: 'bone',
     }
 }
 
@@ -186,7 +221,7 @@ update = () => {
             
                 if(enemy.y + (enemy.h / 2) > player.y + (player.h / 2)) {
                     enemy.y -= enemy.speed
-                } else if (enemy.y + (enemy.h / 2) > player.y + (player.h / 2)) {
+                } else if (enemy.y + (enemy.h / 2) < player.y + (player.h / 2)) {
                     enemy.y += enemy.speed
                 }
             }
@@ -282,7 +317,7 @@ update = () => {
         })
 
         obstacles.forEach(obstacle => {
-            if(checkColision(obstacle, player)) {
+            if(checkColision(obstacle, player) && obstacle.type === 'cactus') {
                 player.hp--
                 switch(player.face) {
                     case 'L':
@@ -318,28 +353,26 @@ update = () => {
 }
 
 draw = () => {
-    ctx.fillStyle = "orange"
+    ctx.fillStyle = "#222"
     ctx.fillRect(0, 0, WIDTH, HEIGHT)
 
     if(player.face === 'R') {
-        let playerImage = new Image();
-        playerImage.src = './assets/player.png';
+        let playerImage = new Image()
+        playerImage.src = './assets/player/sword/defence0/Player_Idle_Sword_Defence0_0.png'
         ctx.drawImage(playerImage, player.x, player.y, player.w, player.h)
     } else if (player.face === 'L') {
         let playerImage = new Image();
-        playerImage.src = './assets/player.png';
+        playerImage.src = './assets/player/sword/defence0/Player_Idle_Sword_Defence0_0.png'
         ctx.drawImage(playerImage, player.x, player.y, player.w, player.h)
     } else if (player.face === 'U') {
         let playerImage = new Image();
-        playerImage.src = './assets/player.png';
+        playerImage.src = './assets/player/sword/defence0/Player_Idle_Sword_Defence0_0.png'
         ctx.drawImage(playerImage, player.x, player.y, player.w, player.h)
     } else if (player.face === 'D') {
         let playerImage = new Image();
-        playerImage.src = './assets/player.png';
+        playerImage.src = './assets/player/sword/defence0/Player_Idle_Sword_Defence0_0.png'
         ctx.drawImage(playerImage, player.x, player.y, player.w, player.h)
     }
-    //ctx.fillStyle = player.color
-    //ctx.fillRect(player.x, player.y, player.w, player.h)
 
     player.bullets.forEach(bullet => {
         ctx.fillStyle = bullet.color
@@ -347,11 +380,30 @@ draw = () => {
     })
 
     obstacles.forEach((obstacle, i) => {
-        if(obstacle.color === 'lightgreen') {
+        if(obstacle.type === 'cactus') {
             let img = new Image();
-            img.src = './assets/cactus1.png';
+            switch(obstacle.sprite){
+                case 0:
+                    img.src = './assets/cactus1.png';
+                    break
+                case 1:
+                    img.src = './assets/cactus2.png';
+                    break
+                case 2:
+                    img.src = './assets/cactus3.png';
+                    break
+
+            } 
             ctx.drawImage(img, obstacle.x, obstacle.y, obstacle.w, obstacle.h)
-        } else {
+        } else if(obstacle.type === 'box') {
+            let img = new Image();
+            img.src = './assets/castle-tileset.png';
+            ctx.drawImage(img, 16, 112, 16, 16 ,obstacle.x, obstacle.y,obstacle.w, obstacle.h)
+        } else if(obstacle.type === 'bone') {
+            let img = new Image();
+            img.src = './assets/bone.png';
+            ctx.drawImage(img, obstacle.x, obstacle.y, obstacle.w, obstacle.h)
+        }else {
             ctx.fillStyle = obstacle.color
             ctx.fillRect(obstacle.x, obstacle.y, obstacle.w, obstacle.h)
         }
@@ -395,120 +447,33 @@ generateMap = () => {
                 break
             case 3:
                 enemy = scorpion()
+                break
             default:
                 enemy = snake()
+                break
         }
         enemies.push(enemy)
     }
 
     for(let i = 0; i < Math.floor(Math.random() * 10 + 1); i++) {
-        let obstacle = {
-            x: Math.floor(Math.random() * (WIDTH - 32) + 25),
-            y: Math.floor(Math.random() * (HEIGHT - 32) + 25),
-            w: WIDTH / 24,
-            h: WIDTH / 24 * 2,
-            color: 'lightgreen',
-            type: 'cactus'
+        let obstacle
+        switch(Math.floor(Math.random()/* * 3*/)){
+            case 0:
+                obstacle = box()
+                break
+            case 1:
+                obstacle = cactus()
+                break
+            case 2:
+                obstacle = bone()
+                break
+            default:
+                obstacle = cactus()
+                break
         }
         obstacles.push(obstacle)
     }
 
-    /*if(Math.random() > .5) {
-        let obstacle = {
-            x: 0,
-            y: 0,
-            w: 25,
-            h: HEIGHT / 2 - (player.h / 1.5),
-            color: 'grey',
-            type: 'wall'
-        }
-
-        obstacles.push(obstacle)
-
-        let obstacle2 = {
-            x: 0,
-            y: HEIGHT / 2 + (player.h / 1.5),
-            w: 25,
-            h: HEIGHT / 2 - (player.h / 1.5),
-            color: 'grey'
-        }
-
-        let obstacle3 = {
-            x: 0,
-            y: 0,
-            w: WIDTH,
-            h: 25,
-            color: 'grey'
-        }
-
-        let door = {
-            x: 0,
-            y: HEIGHT / 2 - (player.h / 1.5),
-            w: 25,
-            h: player.h * 1.5,
-            color: 'brown'
-        }
-        
-        obstacles.push(obstacle2)
-        obstacles.push(obstacle3)
-        obstacles.push(door)
-    } else {
-        let obstacle = {
-            x: 0,
-            y: 0,
-            w: WIDTH / 2 - (player.w / 1.5),
-            h: 25,
-            color: 'grey'
-        }
-
-        let obstacle2 = {
-            x: WIDTH / 2 + (player.w / 1.5),
-            y: 0,
-            w: WIDTH / 2 - (player.w / 1.5),
-            h: 25,
-            color: 'grey'
-        }
-
-        let obstacle3 = {
-            x: 0,
-            y: 0,
-            w: 25,
-            h: HEIGHT,
-            color: 'grey'   
-        }
-
-        let door = {
-            x: WIDTH / 2 - (player.w / 1.5),
-            y: 0,
-            w: player.h * 1.5,
-            h: 25,
-            color: 'brown'
-        }
-        
-        obstacles.push(obstacle)
-        obstacles.push(obstacle2)
-        obstacles.push(obstacle3)
-        obstacles.push(door)
-    }
-
-    let obstacle3 = {
-        x: WIDTH - 25,
-        y: 0,
-        w: 25,
-        h: HEIGHT,
-        color: 'grey'
-    }
-
-    let obstacle4 = {
-        x: 0,
-        y: HEIGHT - 25,
-        w: WIDTH,
-        h: 25,
-        color: 'grey'
-    }
-    obstacles.push(obstacle3)
-    obstacles.push(obstacle4)
-    */
 }
 
 gameOver = () => {
@@ -548,6 +513,8 @@ onKeyDown = e => {
             if(player.bullets.length < player.limitShot) {
                 player.bullets.push(newBullet)
             }
+            shoot = true
+            break;
     }
 }
 
@@ -564,6 +531,9 @@ onKeyUp = e => {
             break
         case 68 || 39:
             right = false
+            break
+        case 32:
+            shoot = false
     }
 }
 
