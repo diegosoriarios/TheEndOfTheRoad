@@ -58,6 +58,10 @@ init = () => {
         clouds.push(generateClouds())
     }
 
+    for(let i = 0; i < 5; i++) {
+        posts.push(generatePosts(i))
+    }
+
     selectedStation = 0
     car.totalKm = generateKm()
     //createMap()
@@ -145,6 +149,13 @@ update = () => {
                 cloud.x -= cloud.speed
             } else {
                 clouds[i] = generateClouds()
+            }
+        })
+
+        posts.forEach((post, i) => {
+            post.x -= 8
+            if(post.x + 256 < 0) {
+                posts[i] = generatePosts(4)
             }
         })
     
@@ -257,8 +268,16 @@ draw = () => {
 
     /**
      * POSTS
-     */
-    ctx.drawImage(postImage, HEIGHT / 2 - 126, 64, 128)
+     
+    ctx.drawImage(postImage, 0, HEIGHT / 2 - 124)
+    ctx.drawImage(postImage, 256, HEIGHT / 2 - 124)
+    ctx.drawImage(postImage, 512, HEIGHT / 2 - 124)
+    ctx.drawImage(postImage, 768, HEIGHT / 2 - 124)
+    */
+    posts.forEach(post => {
+        ctx.drawImage(postImage, post.x, post.y)
+    })
+    
 
     /**
      * Signs 
@@ -376,6 +395,13 @@ generateClouds = () => {
         h: 76,
         speed: Math.floor(Math.random() * 6 + 2),
         types: Math.floor(Math.random() * types.length)
+    }
+}
+
+generatePosts = (i) => {
+    return {
+        x: i * 256, 
+        y: HEIGHT / 2 - 124,    
     }
 }
 
