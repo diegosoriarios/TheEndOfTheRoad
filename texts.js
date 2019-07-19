@@ -123,7 +123,15 @@ const cities = [
 ]
 
 const askPhrases = [
+    'Poderia me dar uma carona até',
+]
 
+const askPhrasesSon = [
+    'Poderia nos dar uma carona até',
+]
+
+const askPhrasesSons = [
+    'Poderia nos dar uma carona até',
 ]
 
 const radioPhrases = [
@@ -133,3 +141,5 @@ const radioPhrases = [
 const carPhrases = [
     
 ]
+
+const timeOfChoices = [5, 15, 30, 45, 60, 120, 300]
