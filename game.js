@@ -9,6 +9,7 @@ let obstacles = []
 let carImage
 let radioImage
 let speedometerImage
+let radios = []
 
 const car = {
     x: WIDTH / 2,
@@ -26,7 +27,7 @@ init = () => {
 
     preload()
     //createMap()
-    //changeWeather()
+    //changeWeather()    
     update()
 }
 
@@ -41,6 +42,9 @@ preload = () => {
 
 update = () => {
     draw()
+    //precisa criar uma carona
+    //um ou dois
+    //generateHiker
 
     requestAnimationFrame(update)
 }
@@ -65,6 +69,35 @@ draw = () => {
     ctx.fillText(car.places.length + "/" + car.totalPlaces, 274, HEIGHT - (HEIGHT / 7))
     //ctx.fillStyle = car.color
     //ctx.fillRect(car.x - (car.w / 2), car.y, car.w, car.h)
+}
+
+generateHiker = (surname = '', place = '') => {
+    return {
+        name: Math.floor(Math.random() * names.length),
+        surname: surname !== '' ? surname : Math.floor(Math.random() * surnames.length),
+        place: place !== '' ? place : Math.floor(Math.random() * cities.length),
+        son: () => {
+            let choices = Math.random()
+            if(choices > .8) {
+                if(choices > .95) {
+                    if(choices > .98) { return Math.floor(Math.random() * 4)}
+                    else { return 2 }
+                } else {
+                    return 1
+                }
+            } else {
+                return 0
+            }
+        }
+    }
+}
+
+generateRadios = () => {
+    let decimal = [1, 3, 5, 7, 9]
+    let integer = 88 + Math.floor(Math.random() * 19)
+    return {
+        station: `${integer}.${decimal}`
+    }
 }
 
 init()
