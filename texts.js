@@ -135,7 +135,19 @@ const askPhrasesSons = [
 ]
 
 const radioPhrases = [
-
+    {day: 1, text: 'Por enquanto não temos muitas novidades, mas quando tivemos estaremos passando pra vocês'},
+    {day: 1, text: 'Pedimos que todos guardem comida e agua e fiquem em suas casas'},
+    {day: 1, text: 'Isso é algo passageiro, vai passar logo'},
+    {day: 1, text: 'Arrependam-se enquanto ainda hà tempo, os juízos de Deus estão sobre nós'},
+    {day: 1, text: ''},
+    {day: 1, text: ''},
+    {day: 1, text: ''},
+    {day: 1, text: ''},
+    {day: 1, text: ''},
+    {day: 1, text: ''},
+    {day: 1, text: ''},
+    {day: 1, text: ''},
+    {day: 2, text: ''},
 ]
 
 const carPhrases = [
