@@ -21,11 +21,14 @@ let cloudImage1
 let cloudImage2
 let sun
 let postImage
+let myGradient
 
 let radios = []
 let selectedStation
 let mouseX, mouseY
 let time = 0
+let hour = 8
+let minutes = 0
 let clock = 0
 let hikers = []
 let pause = false
@@ -61,6 +64,8 @@ init = () => {
     for(let i = 0; i < 5; i++) {
         posts.push(generatePosts(i))
     }
+
+    changeColorSky(8)
 
     selectedStation = 0
     car.totalKm = generateKm()
@@ -161,6 +166,16 @@ update = () => {
     
         time += 1 / 60
         clock += 1 / 60
+
+
+        if(Math.floor(clock) === 5){
+            hour++
+            if(hour === 24) {
+                hour = 0
+            }
+            changeColorSky(hour)
+            clock = 0
+        }
     
         if(Math.floor(time) == timeOfChoices[0]) {
             //do something
@@ -245,6 +260,8 @@ makeChoices = () => {
 draw = () => {
     ctx.fillStyle = "lightblue"
     ctx.fillRect(0, 0, WIDTH, HEIGHT / 2)
+    ctx.fillStyle = myGradient
+    ctx.fillRect(0, 0, WIDTH, HEIGHT / 2)
     ctx.fillStyle = "green"
     ctx.fillRect(0, HEIGHT / 2, WIDTH, HEIGHT / 4)
     ctx.fillStyle = "black"
@@ -253,7 +270,7 @@ draw = () => {
     ctx.drawImage(radioImage, WIDTH / 3, HEIGHT - (HEIGHT / 4))
     ctx.drawImage(speedometerImage, 0, HEIGHT - 256, 256, 256)
     
-    ctx.drawImage(sun, 50, 50, 128, 128)
+    //ctx.drawImage(sun, 50, 50, 128, 128)
 
     /**
      * CLOUDS
@@ -320,7 +337,9 @@ draw = () => {
     ctx.fillText(radios[selectedStation].station, WIDTH / 2 - 32, HEIGHT - 112)
     ctx.fillText(car.totalKm, 92, HEIGHT - (HEIGHT / 7))
     ctx.fillStyle = "black"
-    ctx.fillText(Math.floor(clock), 10, 20)
+    ctx.fillText(Math.floor(hour), 10, 20)
+    //ctx.fillText(Math.floor(minutes), 30, 20)
+    ctx.fillText(minutes, 30, 20)
     //ctx.fillStyle = car.color
     //ctx.fillRect(car.x - (car.w / 2), car.y, car.w, car.h)
 
@@ -403,6 +422,13 @@ generatePosts = (i) => {
         x: i * 256, 
         y: HEIGHT / 2 - 124,    
     }
+}
+
+changeColorSky = (hour) => {
+    myGradient = ctx.createLinearGradient(0, 0, 0, HEIGHT)
+    colorsOfSky[hour].forEach((colors, i) => {
+        myGradient.addColorStop(i / colorsOfSky[hour].length, colors)
+    })
 }
 
 handler = (e) => {
