@@ -26,10 +26,13 @@ let myGradient
 let radios = []
 let selectedStation
 let mouseX, mouseY
+
 let time = 0
 let hour = 8
 let minutes = 0
 let clock = 0
+
+
 let hikers = []
 let pause = false
 let makeAChoice = false
@@ -44,6 +47,12 @@ const car = {
     places: [],
     totalPlaces: 4,
     totalKm: ''
+}
+
+const player = {
+    hungry: 4,
+    thirst: 4,
+    sleep: 4
 }
 
 init = () => {
@@ -166,20 +175,30 @@ update = () => {
     
         time += 1 / 60
         clock += 1 / 60
+        minutes += 1 / 180
 
 
-        if(Math.floor(clock) === 5){
+        /*if(Math.floor(clock) === 5){
             hour++
             if(hour === 24) {
                 hour = 0
             }
             changeColorSky(hour)
             clock = 0
+        }*/
+
+        if(Math.floor(minutes) === 6.0) {
+            minutes = 0
+            hour++
+            if(hour === 24) {
+                hour = 0
+            }
+            changeColorSky(hour)
         }
     
         if(Math.floor(time) == timeOfChoices[0]) {
             //do something
-            switch(/*Math.floor(Math.random() * 1)*/ 1) {
+            switch(/*Math.floor(Math.random() * 1)*/ 0) {
                 case 0:
                     hikers.push(generateHiker())
                     for(let i = 0; i < hikers[0].son; i++) {
@@ -325,6 +344,25 @@ draw = () => {
     ctx.drawImage(carImage, car.x - 128, car.y - 128)
 
     /**
+    * AVATARS
+    */
+    let avatar = new Image()
+    avatar.src = './assets/avatars/1.jpg'
+    ctx.drawImage(avatar, 10, 10, 64, 64)
+    ctx.fillStyle = "green"
+    ctx.fillRect(10, 74, player.thirst * 16, 16)
+    ctx.fillRect(10, 92, player.hungry * 16, 16)
+    ctx.fillRect(10, 110, player.sleep * 16, 16)
+
+    car.places.forEach((_, i) => {
+        ctx.drawImage(avatar, (64 * (i + 1)) + (16 * i + 1), 10, 64, 64)
+        ctx.fillStyle = "green"
+        ctx.fillRect((64 * (i + 1)) + (16 * i + 1), 74, player.thirst * 16, 16)
+        ctx.fillRect((64 * (i + 1)) + (16 * i + 1), 92, player.hungry * 16, 16)
+        ctx.fillRect((64 * (i + 1)) + (16 * i + 1), 110, player.sleep * 16, 16)
+    })
+
+    /**
      * FONTS
      */
     ctx.fillStyle = "white"
@@ -336,10 +374,10 @@ draw = () => {
     ctx.font = "20px Arial"
     ctx.fillText(radios[selectedStation].station, WIDTH / 2 - 32, HEIGHT - 112)
     ctx.fillText(car.totalKm, 92, HEIGHT - (HEIGHT / 7))
-    ctx.fillStyle = "black"
-    ctx.fillText(Math.floor(hour), 10, 20)
+    ctx.fillStyle = "white"
+    ctx.fillText(Math.floor(hour) < 10 ? `0${Math.floor(hour)}:` : `${Math.floor(hour)}:`, WIDTH - 128, HEIGHT - 20)
     //ctx.fillText(Math.floor(minutes), 30, 20)
-    ctx.fillText(minutes, 30, 20)
+    ctx.fillText(Math.floor(minutes * 10) < 10 ? `0${Math.floor(minutes * 10)}` : Math.floor(minutes * 10), WIDTH - 88, HEIGHT - 20)
     //ctx.fillStyle = car.color
     //ctx.fillRect(car.x - (car.w / 2), car.y, car.w, car.h)
 
@@ -368,6 +406,8 @@ generateHiker = (surname = '', place = '') => {
         name: names[Math.floor(Math.random() * names.length)],
         surname: surname !== '' ? surname : surnames[Math.floor(Math.random() * surnames.length)],
         place: place !== '' ? place : cities[Math.floor(Math.random() * cities.length)],
+        thirst: 4,
+        hungry: 4, 
         son: son
     }
 }
