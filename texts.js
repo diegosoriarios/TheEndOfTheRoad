@@ -184,6 +184,16 @@ const colorsOfSky = [
     ['#00000c'],
 ]
 
+items = [
+    'food 1',
+    'food 2',
+    'coffee',
+    'energetic',
+    'watter',
+    'soda',
+]
+
+
 /**
  * DIA 1
  * 22/03/1964

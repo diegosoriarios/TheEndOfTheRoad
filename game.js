@@ -34,6 +34,7 @@ let time = 0
 let hour = 9    
 let minutes = 0
 let clock = 0
+let day = 1
 
 
 let hikers = []
@@ -57,7 +58,8 @@ const car = {
 const player = {
     hungry: 2,
     thirst: 4,
-    sleep: 4
+    sleep: 4,
+    item: []
 }
 
 init = () => {
@@ -78,6 +80,9 @@ init = () => {
     for(let i = 0; i < 5; i++) {
         posts.push(generatePosts(i))
     }
+
+    player.item.push(generateItems())
+    player.item.push(generateItems())
 
     changeColorSky(hour)
 
@@ -201,6 +206,7 @@ update = () => {
             car.fuelLeft--
             if(hour === 24) {
                 hour = 0
+                day++
             }
             changeColorSky(hour)
         }
@@ -246,7 +252,7 @@ update = () => {
 
         if( mouseX >= 690 && mouseX <= 754 && mouseY >= 597 && mouseY <= 658) {
             /*
-            switch(item.type){
+            switch(player.item.type){
                 case 'food 1':
                     player.hungry++
                     break
@@ -409,6 +415,9 @@ draw = () => {
                 break
             case 2:
                 ctx.drawImage(limitSpeedSign, signs.x, signs.y, 32, 32)
+                ctx.fillStyle = "black"
+                ctx.font = "14px Arial"
+                ctx.fillText("80", signs.x + 8, signs.y + 22)
                 break
             case 3:
                 ctx.drawImage(rotateSign, signs.x, signs.y, 32, 32)
@@ -484,7 +493,8 @@ draw = () => {
      */
     ctx.strokeStyle = "white"
     ctx.strokeRect(WIDTH - 352, HEIGHT - 190, 302, 189)
-    
+    console.log(player.item[0])
+    ctx.drawImage(player.item[0].image, WIDTH - 316, HEIGHT - 182, 32, 64)
     ctx.strokeRect(WIDTH - 342, HEIGHT - 182, 64, 64)
     ctx.strokeRect(WIDTH - 270, HEIGHT - 182, 64, 64)
     ctx.strokeRect(WIDTH - 198, HEIGHT - 182, 64, 64)
@@ -507,6 +517,7 @@ draw = () => {
 generateHiker = (surname = '', place = '') => {
     let choices = Math.random()
     let son = 0
+    let item = {}
     if(choices > .8) {
         if(choices > .95) {
             if(choices > .98) { son = Math.floor(Math.random() * 4)}
@@ -517,6 +528,9 @@ generateHiker = (surname = '', place = '') => {
     } else {
         son = 0
     }
+    if((Math.random() * 15) < (10 / day)) {
+        item = generateItems()
+    }
     return {
         x: WIDTH + (WIDTH / 2),
         y: HEIGHT / 2,
@@ -524,8 +538,10 @@ generateHiker = (surname = '', place = '') => {
         surname: surname !== '' ? surname : surnames[Math.floor(Math.random() * surnames.length)],
         place: place !== '' ? place : cities[Math.floor(Math.random() * cities.length)],
         thirst: 4,
+        gender: Math.random > .5 ? 'F' : 'M',
         hungry: 4, 
-        son: son
+        son: son,
+        item: item
     }
 }
 
@@ -558,7 +574,7 @@ generateSign = () => {
     return {
         x: WIDTH + (WIDTH / 2),
         y: HEIGHT / 2 - 64,
-        type: signs[Math.floor(Math.random() * signs.length)]
+        type: 2//signs[Math.floor(Math.random() * signs.length)]
     }
 }
 
@@ -578,6 +594,83 @@ generatePosts = (i) => {
     return {
         x: i * 256, 
         y: HEIGHT / 2 - 124,    
+    }
+}
+
+generateItems = () => {
+    let image = new Image()
+    let type = items[Math.floor(Math.random() * items.length)]
+    let brand = Math.floor(Math.random() * 3)
+    console.log(type)
+    switch(type) {
+        case 'food 1':
+            if(brand === 0){
+                image.src = './assets/items/pera.png'
+            } else if ( brand === 1){
+                image.src = './assets/items/pera.png'
+            } else {
+                image.src = './assets/items/pera.png'
+            }
+            break
+        case 'food 2':
+            if(brand === 0){
+                image.src = './assets/items/steak.png'
+            } else if ( brand === 1){
+                image.src = './assets/items/steak.png'
+            } else {
+                image.src = './assets/items/steak.png'
+            }
+            break
+        case 'coffee':
+            if(brand === 0){
+                image.src = './assets/items/pera.png'
+            } else if ( brand === 1){
+                image.src = './assets/items/pera.png'
+            } else {
+                image.src = './assets/items/pera.png'
+            }
+            break
+        case 'energetic':
+            if(brand === 0){
+                image.src = './assets/items/pera.png'
+            } else if ( brand === 1){
+                image.src = './assets/items/pera.png'
+            } else {
+                image.src = './assets/items/pera.png'
+            }
+            break
+        case 'watter':
+            if(brand === 0){
+                image.src = './assets/items/water.png'
+            } else if ( brand === 1){
+                image.src = './assets/items/water.png'
+            } else {
+                image.src = './assets/items/water.png'
+            }
+            break
+        case 'soda':
+            if(brand === 0){
+                image.src = './assets/items/pera.png'
+            } else if ( brand === 1){
+                image.src = './assets/items/pera.png'
+            } else {
+                image.src = './assets/items/pera.png'
+            }
+            break
+        default:
+            if(brand === 0){
+                image.src = './assets/items/pera.png'
+            } else if ( brand === 1){
+                image.src = './assets/items/pera.png'
+            } else {
+                image.src = './assets/items/pera.png'
+            }
+            break
+    }
+    return {
+        type: type,
+        brand: brand,
+        image: image
     }
 }
 
