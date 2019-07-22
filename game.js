@@ -24,13 +24,14 @@ let postImage
 let myGradient
 let foodImage
 let waterImage
+let steakImage
 
 let radios = []
 let selectedStation
 let mouseX, mouseY
 
 let time = 0
-let hour = 8
+let hour = 9
 let minutes = 0
 let clock = 0
 
@@ -52,7 +53,7 @@ const car = {
 }
 
 const player = {
-    hungry: 4,
+    hungry: 2,
     thirst: 4,
     sleep: 4
 }
@@ -116,6 +117,8 @@ preload = () => {
     foodImage.src = './assets/items/pera.png'
     waterImage = new Image()
     waterImage.src = './assets/items/water.png'
+    steakImage = new Image()
+    steakImage.src = './assets/items/steak.png'
 }
 
 update = () => {
@@ -183,16 +186,9 @@ update = () => {
         clock += 1 / 60
         minutes += 1 / 180
 
-
-        /*if(Math.floor(clock) === 5){
-            hour++
-            if(hour === 24) {
-                hour = 0
-            }
-            changeColorSky(hour)
-            clock = 0
-        }*/
-
+        /**
+         * TIME
+         */
         if(Math.floor(minutes) === 6.0) {
             minutes = 0
             hour++
@@ -204,7 +200,7 @@ update = () => {
     
         if(Math.floor(time) == timeOfChoices[0]) {
             //do something
-            switch(/*Math.floor(Math.random() * 1)*/ 0) {
+            switch(/*Math.floor(Math.random() * 1)*/ 1) {
                 case 0:
                     hikers.push(generateHiker())
                     for(let i = 0; i < hikers[0].son; i++) {
@@ -218,6 +214,51 @@ update = () => {
                     time = 0
                     break
             }
+        }
+        
+        if(hour % 8 === 0 && Math.floor(minutes * 10) === 0) {
+            player.hungry -= 1/14
+            player.sleep -= 1/14
+        } else if (hour % 12 === 0 && Math.floor(minutes * 10) === 0) {
+            player.thirst -= 1/14
+        }
+
+        /**
+         * CHOICES
+         */
+    
+        ctx.strokeRect(WIDTH - 342, HEIGHT - 182, 64, 64)
+        ctx.strokeRect(WIDTH - 270, HEIGHT - 182, 64, 64)
+        ctx.strokeRect(WIDTH - 198, HEIGHT - 182, 64, 64)
+        ctx.strokeRect(WIDTH - 126, HEIGHT - 182, 64, 64)
+    
+        ctx.strokeRect(WIDTH - 342, HEIGHT - 108, 64, 64)
+        ctx.strokeRect(WIDTH - 270, HEIGHT - 108, 64, 64)
+        ctx.strokeRect(WIDTH - 198, HEIGHT - 108, 64, 64)
+        ctx.strokeRect(WIDTH - 126, HEIGHT - 108, 64, 64)
+
+        if( mouseX >= 690 && mouseX <= 754 && mouseY >= 597 && mouseY <= 658) {
+            console.log('Food')
+            player.hungry++
+        } else if (mouseX >= 762 && mouseX <= 826 && mouseY >= 597 && mouseY <= 658) {
+            console.log("Food2")
+            player.hungry = 4
+        } else if (mouseX >= 834 && mouseX <= 898 && mouseY >= 597 && mouseY <= 658) {
+            console.log('Thirst')
+            player.thirst = 4
+        } else if (mouseX >= 907 && mouseX <= 969 && mouseY >= 597 && mouseY <= 658) {
+            console.log('Outro')
+        } else if( mouseX >= 690 && mouseX <= 754 && mouseY >= 669 && mouseY <= 733) {
+            console.log('Another')
+            player.hungry++
+        } else if (mouseX >= 762 && mouseX <= 826 && mouseY >= 669 && mouseY <= 733) {
+            console.log("Mais um")
+            player.hungry = 4
+        } else if (mouseX >= 834 && mouseX <= 898 && mouseY >= 669 && mouseY <= 733) {
+            console.log('Other')
+            player.thirst = 4
+        } else if (mouseX >= 907 && mouseX <= 969 && mouseY >= 669 && mouseY <= 733) {
+            console.log('Otro')
         }
     
         mouseX = mouseY = -1
@@ -397,9 +438,25 @@ draw = () => {
      * INVENTARIO
      */
     ctx.strokeStyle = "white"
-    ctx.strokeRect(WIDTH - 352, HEIGHT - 190, 305, 189);
-    ctx.drawImage(waterImage, WIDTH - 336, HEIGHT - 182, 32, 64)
-    ctx.drawImage(foodImage, WIDTH - 288, HEIGHT - 182, 32, 64)
+    ctx.strokeRect(WIDTH - 352, HEIGHT - 190, 302, 189)
+    
+    ctx.strokeRect(WIDTH - 342, HEIGHT - 182, 64, 64)
+    ctx.strokeRect(WIDTH - 270, HEIGHT - 182, 64, 64)
+    ctx.strokeRect(WIDTH - 198, HEIGHT - 182, 64, 64)
+    ctx.strokeRect(WIDTH - 126, HEIGHT - 182, 64, 64)
+
+    ctx.strokeRect(WIDTH - 342, HEIGHT - 108, 64, 64)
+    ctx.strokeRect(WIDTH - 270, HEIGHT - 108, 64, 64)
+    ctx.strokeRect(WIDTH - 198, HEIGHT - 108, 64, 64)
+    ctx.strokeRect(WIDTH - 126, HEIGHT - 108, 64, 64)
+    //Food 1
+    //ctx.drawImage(waterImage, WIDTH - 316, HEIGHT - 182, 32, 64)
+    //Food 2
+    //ctx.drawImage(foodImage, WIDTH - 241, HEIGHT - 182, 32, 64)
+    //Watter
+    //ctx.drawImage(steakImage, WIDTH - 166, HEIGHT - 182, 32, 64)
+    //Outro
+    //ctx.drawImage(steakImage, WIDTH - 91, HEIGHT - 182, 32, 64)
 }
 
 generateHiker = (surname = '', place = '') => {
