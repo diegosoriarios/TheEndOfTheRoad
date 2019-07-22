@@ -31,7 +31,7 @@ let selectedStation
 let mouseX, mouseY
 
 let time = 0
-let hour = 9
+let hour = 9    
 let minutes = 0
 let clock = 0
 
@@ -49,7 +49,9 @@ const car = {
     color: 'white',
     places: [],
     totalPlaces: 4,
-    totalKm: ''
+    totalKm: '',
+    fuelLeft: 36,
+    speed: 80,
 }
 
 const player = {
@@ -77,7 +79,7 @@ init = () => {
         posts.push(generatePosts(i))
     }
 
-    changeColorSky(8)
+    changeColorSky(hour)
 
     selectedStation = 0
     car.totalKm = generateKm()
@@ -186,12 +188,17 @@ update = () => {
         clock += 1 / 60
         minutes += 1 / 180
 
+        if(((minutes * 10).toFixed(1) % 8) === 0) {
+            car.totalKm = parseInt(car.totalKm) + 1
+            car.totalKm = addZeros(car.totalKm)
+        }
         /**
          * TIME
          */
         if(Math.floor(minutes) === 6.0) {
             minutes = 0
             hour++
+            car.fuelLeft--
             if(hour === 24) {
                 hour = 0
             }
@@ -238,6 +245,31 @@ update = () => {
         ctx.strokeRect(WIDTH - 126, HEIGHT - 108, 64, 64)
 
         if( mouseX >= 690 && mouseX <= 754 && mouseY >= 597 && mouseY <= 658) {
+            /*
+            switch(item.type){
+                case 'food 1':
+                    player.hungry++
+                    break
+                case 'food 2':
+                    player.hungry = 4
+                    break
+                case 'coffee':
+                    player.sleep++
+                    player.thirst++
+                    break
+                case 'energetic'
+                    player.sleep = 4
+                    player.thisrt++
+                    break
+                case 'watter'
+                    player.thirst = 4
+                    break
+                case 'soda'
+                    player.thirst++
+                    player.hungry--
+                    break
+            }
+            */
             console.log('Food')
             player.hungry++
         } else if (mouseX >= 762 && mouseX <= 826 && mouseY >= 597 && mouseY <= 658) {
@@ -396,6 +428,10 @@ draw = () => {
     let avatar = new Image()
     avatar.src = './assets/avatars/1.jpg'
     ctx.drawImage(avatar, 10, 10, 64, 64)
+    ctx.fillStyle = "red"
+    ctx.fillRect(10, 74, 64, 16)
+    ctx.fillRect(10, 92, 64, 16)
+    ctx.fillRect(10, 110, 64, 16)
     ctx.fillStyle = "green"
     ctx.fillRect(10, 74, player.thirst * 16, 16)
     ctx.fillRect(10, 92, player.hungry * 16, 16)
@@ -404,6 +440,10 @@ draw = () => {
     car.places.forEach((_, i) => {
         console.log((8 * (i + 1)))
         ctx.drawImage(avatar, ((64 * (i + 1)) + 10), 10, 64, 64)
+        ctx.fillStyle = "red"
+        ctx.fillRect(10, 74, 64, 16)
+        ctx.fillRect(10, 92, 64, 16)
+        ctx.fillRect(10, 110, 64, 16)
         ctx.fillStyle = "green"
         ctx.fillRect((64 * (i + 1)) + 10, 74, player.thirst * 16, 16)
         ctx.fillRect((64 * (i + 1)) + 10, 92, player.hungry * 16, 16)
@@ -411,17 +451,22 @@ draw = () => {
     })
 
     /**
-     * FONTS
+     * TEXT
      */
     ctx.fillStyle = "white"
     ctx.font = "16px Press Start 2P', cursive"
-    ctx.fillText("PLACES", 266, HEIGHT - (HEIGHT / 5.5))
+    ctx.fillText("PLACES", 256, HEIGHT - (HEIGHT / 5.5))
     ctx.font = "30px Arial"
     ctx.fillText(car.places.length + "/" + car.totalPlaces, 274, HEIGHT - (HEIGHT / 7))
     ctx.fillStyle = "white"
     ctx.font = "20px Arial"
     ctx.fillText(radios[selectedStation].station, WIDTH / 2 - 32, HEIGHT - 112)
     ctx.fillText(car.totalKm, 92, HEIGHT - (HEIGHT / 7))
+    ctx.fillText(`F:${car.fuelLeft} h`, 92, HEIGHT - (HEIGHT / 6))
+    ctx.font = "30px Arial"
+    ctx.fillText(car.speed, 92, HEIGHT - (HEIGHT / 5))
+    ctx.font = "20px Arial"
+    ctx.fillText("km", 128, HEIGHT - (HEIGHT / 5))
     ctx.fillStyle = "white"
     ctx.fillText(Math.floor(hour) < 10 ? `0${Math.floor(hour)}:` : `${Math.floor(hour)}:`, WIDTH - 128, HEIGHT - 20)
     //ctx.fillText(Math.floor(minutes), 30, 20)
@@ -556,6 +601,15 @@ handler = (e) => {
     }
 
     console.log(mouseX, mouseY);
+}
+
+addZeros = (text) => {
+    let r = "" + text;
+    while (r.length < 7) {
+        r = "0" + r;
+    }
+    console.log(r)
+    return r;
 }
 
 init()
