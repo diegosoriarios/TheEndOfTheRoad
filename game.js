@@ -22,6 +22,8 @@ let cloudImage2
 let sun
 let postImage
 let myGradient
+let foodImage
+let waterImage
 
 let radios = []
 let selectedStation
@@ -110,6 +112,10 @@ preload = () => {
     sun.src = './assets/sun.png'
     postImage = new Image()
     postImage.src = './assets/posts.png'
+    foodImage = new Image()
+    foodImage.src = './assets/items/pera.png'
+    waterImage = new Image()
+    waterImage.src = './assets/items/water.png'
 }
 
 update = () => {
@@ -355,11 +361,12 @@ draw = () => {
     ctx.fillRect(10, 110, player.sleep * 16, 16)
 
     car.places.forEach((_, i) => {
-        ctx.drawImage(avatar, (64 * (i + 1)) + (16 * i + 1), 10, 64, 64)
+        console.log((8 * (i + 1)))
+        ctx.drawImage(avatar, ((64 * (i + 1)) + 10), 10, 64, 64)
         ctx.fillStyle = "green"
-        ctx.fillRect((64 * (i + 1)) + (16 * i + 1), 74, player.thirst * 16, 16)
-        ctx.fillRect((64 * (i + 1)) + (16 * i + 1), 92, player.hungry * 16, 16)
-        ctx.fillRect((64 * (i + 1)) + (16 * i + 1), 110, player.sleep * 16, 16)
+        ctx.fillRect((64 * (i + 1)) + 10, 74, player.thirst * 16, 16)
+        ctx.fillRect((64 * (i + 1)) + 10, 92, player.hungry * 16, 16)
+        ctx.fillRect((64 * (i + 1)) + 10, 110, player.sleep * 16, 16)
     })
 
     /**
@@ -385,6 +392,14 @@ draw = () => {
         ctx.fillStyle = 'black'
         ctx.fillRect(hiker.x, hiker.y - 92, 64, 92)
     })
+
+    /**
+     * INVENTARIO
+     */
+    ctx.strokeStyle = "white"
+    ctx.strokeRect(WIDTH - 352, HEIGHT - 190, 305, 189);
+    ctx.drawImage(waterImage, WIDTH - 336, HEIGHT - 182, 32, 64)
+    ctx.drawImage(foodImage, WIDTH - 288, HEIGHT - 182, 32, 64)
 }
 
 generateHiker = (surname = '', place = '') => {
