@@ -31,6 +31,9 @@ let gasStationImage
 let fuelImage
 
 let stopGas = false
+let stopSleep = false
+let chooseSleep = false
+let chooseTheft = false
 let gasItems = []
 let gasPrice
 let noMoney = false
@@ -223,6 +226,12 @@ update = () => {
             }
         })
 
+        if(city.length > 0) {
+            if(city[0].x < 0 ) {
+                makeAChoice = true
+            }
+        }
+
         posts.forEach((post, i) => {
             post.x -= 8
             if(post.x + 256 < 0) {
@@ -350,72 +359,87 @@ makeChoices = () => {
     if(stopGas) {
         gasStationBuy()
     } else {
-        if(makeAChoice) {
-            let option
-            ctx.drawImage(dialogBoxImage, WIDTH / 2 - 260, HEIGHT / 2 - 100, 520, 200)
-            /**
-             * RIDE
-             */
-            if(hikers.length > 0){
-                option = 'ride'
-                ctx.fillStyle = "white"
-                ctx.fillRect(WIDTH / 2 - 220, HEIGHT / 2 - 65, 100, 120)
-                ctx.fillText(hikers[0].name, WIDTH / 2 - 100, HEIGHT / 2 - 45)
-                ctx.fillStyle = "white"
-                ctx.font = "20px Arial"
-                if(hikers[0].son === 0) {
-                    ctx.fillText(askPhrases[Math.floor(Math.random() * askPhrases.length)], WIDTH / 2 - 100, HEIGHT / 2 - 10)
-                } else {
-                    if(hikers[0].son === 1) {
-                        ctx.fillText(askPhrasesSon[Math.floor(Math.random() * askPhrasesSon.length)], WIDTH / 2 - 100, HEIGHT / 2 - 10)
+        if(stopSleep) {
+            sleepOrNot()
+        } else {
+            if(makeAChoice) {
+                let option
+                ctx.drawImage(dialogBoxImage, WIDTH / 2 - 260, HEIGHT / 2 - 100, 520, 200)
+                /**
+                 * RIDE
+                 */
+                if(hikers.length > 0){
+                    option = 'ride'
+                    ctx.fillStyle = "white"
+                    ctx.fillRect(WIDTH / 2 - 220, HEIGHT / 2 - 65, 100, 120)
+                    ctx.fillText(hikers[0].name, WIDTH / 2 - 100, HEIGHT / 2 - 45)
+                    ctx.fillStyle = "white"
+                    ctx.font = "20px Arial"
+                    if(hikers[0].son === 0) {
+                        ctx.fillText(askPhrases[Math.floor(Math.random() * askPhrases.length)], WIDTH / 2 - 100, HEIGHT / 2 - 10)
                     } else {
-                        ctx.fillText(askPhrasesSons[Math.floor(Math.random() * askPhrasesSons.length)], WIDTH / 2 - 100, HEIGHT / 2 - 10)
+                        if(hikers[0].son === 1) {
+                            ctx.fillText(askPhrasesSon[Math.floor(Math.random() * askPhrasesSon.length)], WIDTH / 2 - 100, HEIGHT / 2 - 10)
+                        } else {
+                            ctx.fillText(askPhrasesSons[Math.floor(Math.random() * askPhrasesSons.length)], WIDTH / 2 - 100, HEIGHT / 2 - 10)
+                        }
+                    }
+                    ctx.fillText(`${hikers[0].place}?`, WIDTH / 2 - 100, HEIGHT / 2 + 15)
+                }
+                /**
+                 * GAS STATION
+                 */
+                if(gasStation !== undefined) {
+                    option = 'gas'
+                    ctx.fillText("Gostaria de comprar algo", WIDTH / 2 - 100, HEIGHT / 2 - 10)
+                }
+
+                if(city.length !== 0) {
+                    option = 'city'
+                    ctx.fillText("Gostaria de parar na cidade", WIDTH / 2 - 100, HEIGHT / 2 - 10)
+                }
+                
+                ctx.fillStyle = "white"
+                ctx.fillRect(WIDTH / 2 - 50, HEIGHT / 2 + 25, 50, 30)
+                ctx.fillRect(WIDTH / 2 + 50, HEIGHT / 2 + 25, 50, 30)
+                ctx.fillStyle = "black"
+                ctx.font = "20px Arial"
+                ctx.fillText("Sim", WIDTH / 2 - 43, HEIGHT / 2 + 45)
+                ctx.fillText("Não", WIDTH / 2 + 56, HEIGHT / 2 + 45)
+        
+                if(mouseX >= 471 && mouseX <= 520 && mouseY >= 418 && mouseY <= 447) {
+                    if(option === 'ride'){
+                        console.log('Yes')
+                        car.places.push(hikers)
+        
+                        hikers = []
+        
+                        makeAChoice = false
+                        mouseX = mouseY = -1
+                    } else if(option === 'gas') {
+                        minutes += .5
+                        stopGas = true
+                    } else if(option === 'city') {
+                        stopSleep = true
+                    }
+                } else if (mouseX >= 570 && mouseX <= 619 && mouseY >= 418 && mouseY <= 448) {
+                    if(option === 'ride'){
+                        console.log('No')
+                        hikers = []
+        
+                        makeAChoice = false
+                        mouseX = mouseY = -1
+                    }else if (option === 'gas') {
+                        stopGas = false
+                    } else if(option === 'city') {
+                        stopSleep = false
                     }
                 }
-                ctx.fillText(`${hikers[0].place}?`, WIDTH / 2 - 100, HEIGHT / 2 + 15)
+        
+                requestAnimationFrame(makeChoices)
+            } else {
+                update()
             }
-            /**
-             * GAS STATION
-             */
-            if(gasStation !== undefined) {
-                option = 'gas'
-                ctx.fillText("Gostaria de comprar algo", WIDTH / 2 - 100, HEIGHT / 2 - 10)
-            }
-            
-            ctx.fillStyle = "white"
-            ctx.fillRect(WIDTH / 2 - 50, HEIGHT / 2 + 25, 50, 30)
-            ctx.fillRect(WIDTH / 2 + 50, HEIGHT / 2 + 25, 50, 30)
-            ctx.fillStyle = "black"
-            ctx.font = "20px Arial"
-            ctx.fillText("Sim", WIDTH / 2 - 43, HEIGHT / 2 + 45)
-            ctx.fillText("Não", WIDTH / 2 + 56, HEIGHT / 2 + 45)
-    
-            if(mouseX >= 471 && mouseX <= 520 && mouseY >= 418 && mouseY <= 447) {
-                if(option === 'ride'){
-                    console.log('Yes')
-                    car.places.push(hikers)
-    
-                    hikers = []
-    
-                    makeAChoice = false
-                    mouseX = mouseY = -1
-                } else if(option === 'gas') {
-                    minutes += .5
-                    stopGas = true
-                }
-            } else if (mouseX >= 570 && mouseX <= 619 && mouseY >= 418 && mouseY <= 448) {
-                if(option === 'ride'){
-                    console.log('No')
-                    hikers = []
-    
-                    makeAChoice = false
-                    mouseX = mouseY = -1
-                }
-            }
-    
-            requestAnimationFrame(makeChoices)
-        } else {
-            update()
         }
     }
     
@@ -894,12 +918,62 @@ gasStationBuy = () => {
     
             requestAnimationFrame(gasStationBuy)
         } else{
-            if(noMoney) errorBox("Você não tem dinheiro suficiente")
+            if(noMoney) messageBox("Você não tem dinheiro suficiente")
         } 
     }
 }
 
-errorBox = (message) => {
+sleepOrNot = () => {
+    if(!makeAChoice) {
+        stopsleep = false
+        makeAChoice = false
+        update()
+    } else {
+        if(chooseSleep) {
+            makeSleep()
+        } else {
+            if(chooseTheft) {
+                makeTheft()
+            } else {
+                ctx.drawImage(dialogBoxImage, WIDTH / 2 - 260, HEIGHT / 2 - 100, 520, 200)
+                ctx.fillText("O que fazer durante a noite", WIDTH / 2 - 100, HEIGHT / 2 - 10)
+        
+                ctx.fillStyle = "white"
+                ctx.fillRect(WIDTH / 2 - 100, HEIGHT / 2 + 25, 100, 30)
+                ctx.fillRect(WIDTH / 2 + 50, HEIGHT / 2 + 25, 100, 30)
+                ctx.fillStyle = "black"
+                ctx.font = "20px Arial"
+                ctx.fillText("Dormir", WIDTH / 2 - 90, HEIGHT / 2 + 45)
+                ctx.fillText("Saquear", WIDTH / 2 + 56, HEIGHT / 2 + 45)
+
+                if(mouseX >= 420 && mouseX <= 520 && mouseY >= 418 && mouseY <= 448) {
+                    chooseSleep = true
+                    console.log('make sleep')
+                } else if (mouseX >= 570 && mouseX <= 670 && mouseY >= 418 && mouseY <= 448) {
+                    chooseTheft = true
+                }
+                
+                mouseX = mouseY = -1
+
+                requestAnimationFrame(sleepOrNot) 
+            }
+        }
+    }
+}
+
+makeSleep = () => {
+    ctx.drawImage(dialogBoxImage, WIDTH / 2 - 260, HEIGHT / 2 - 100, 520, 200)
+    ctx.fillStyle = "white"
+    ctx.fillRect(WIDTH / 2 - 220, HEIGHT / 2 - 65, 100, 100)
+    ctx.fillRect(WIDTH / 2 - 60, HEIGHT / 2 - 65, 100, 100)
+    ctx.fillRect(WIDTH / 2 + 120, HEIGHT / 2 - 65, 100, 100)
+    ctx.fillStyle = "black"
+    ctx.fillText(places[Math.floor(Math.random() * places.length)], WIDTH / 2 - 200, HEIGHT / 2 + 60)
+    ctx.fillText(places[Math.floor(Math.random() * places.length)], WIDTH / 2 - 50, HEIGHT / 2 + 60)
+    ctx.fillText(places[Math.floor(Math.random() * places.length)], WIDTH / 2 + 200, HEIGHT / 2 + 60)
+}
+
+messageBox = (message) => {
     ctx.drawImage(dialogBoxImage, WIDTH / 2 - 260, HEIGHT / 2 - 100, 520, 200)
     ctx.fillText(message, WIDTH / 2 - (message.length / 2), HEIGHT / 2 - 10)
 }

@@ -193,6 +193,16 @@ items = [
     'soda',
 ]
 
+places = [
+    'Farmácia',
+    'Igreja',
+    'Hospital',
+    'Casa',
+    'Apartamento',
+    'Supermercado',
+    'Posto de gasolina'
+]
+
 
 /**
  * DIA 1
