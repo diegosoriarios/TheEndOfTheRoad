@@ -6,6 +6,7 @@ const HEIGHT = 768
 
 let enemies = []
 let obstacles = []
+let city = []
 let clouds = []
 let posts = []
 let gasStation
@@ -214,6 +215,14 @@ update = () => {
             }
         })
 
+        city.forEach((building, i) => {
+            building.x -= 8
+            
+            if(building.x + 128 < WIDTH - 32) {
+                city.slice(i, 1)
+            }
+        })
+
         posts.forEach((post, i) => {
             post.x -= 8
             if(post.x + 256 < 0) {
@@ -233,7 +242,7 @@ update = () => {
          * TIME
          */
         if(Math.floor(minutes) === 6.0) {
-            minutes = 0
+            minutes -= 6.0
             hour++
             car.fuelLeft--
             if(hour === 24) {
@@ -245,7 +254,7 @@ update = () => {
     
         if(Math.floor(time) == timeOfChoices[0]) {
             //do something
-            switch(/*Math.floor(Math.random() * 1)*/ 2) {
+            switch(/*Math.floor(Math.random() * 1)*/ 3) {
                 case 0:
                     hikers.push(generateHiker())
                     for(let i = 0; i < hikers[0].son; i++) {
@@ -262,9 +271,16 @@ update = () => {
                     gasStation = generateGasStation()
                     time = 0
                     break
+                case 3:
+                    time++
+                    for(let i = 0; i < Math.floor(Math.random() * 10 + 4); i++) {
+                        city.push(generateBuildings(i))
+                    }
+                    time = 0
+                    break
             }
         }
-        
+
         if(hour % 8 === 0 && Math.floor(minutes * 10) === 0) {
             player.hungry -= 1/14
             player.sleep -= 1/14
@@ -384,6 +400,7 @@ makeChoices = () => {
                     makeAChoice = false
                     mouseX = mouseY = -1
                 } else if(option === 'gas') {
+                    minutes += .5
                     stopGas = true
                 }
             } else if (mouseX >= 570 && mouseX <= 619 && mouseY >= 418 && mouseY <= 448) {
@@ -477,6 +494,10 @@ draw = () => {
         }
     }
 
+    city.forEach(building => {
+        ctx.drawImage(building.image, building.x, building.y, building.w, building.h)
+    })
+
     /**
      * GAS STATION
      */
@@ -558,7 +579,7 @@ draw = () => {
      */
     ctx.strokeStyle = "white"
     ctx.strokeRect(WIDTH - 352, HEIGHT - 190, 302, 189)
-    if(player.item[0] !== undefined) {ctx.drawImage(player.item[0].image, WIDTH - 342, HEIGHT - 182, 32, 64)} else {ctx.strokeRect(WIDTH - 342, HEIGHT - 182, 32, 64)}
+    if(player.item[0] !== undefined) {ctx.drawImage(player.item[0].image, WIDTH - 342, HEIGHT - 182, 64, 64)} else {ctx.strokeRect(WIDTH - 342, HEIGHT - 182, 64, 64)}
     if(player.item[1] !== undefined) {ctx.drawImage(player.item[1].image, WIDTH - 270, HEIGHT - 182, 64, 64)} else {ctx.strokeRect(WIDTH - 270, HEIGHT - 182, 64, 64)}
     if(player.item[2] !== undefined) {ctx.drawImage(player.item[2].image, WIDTH - 198, HEIGHT - 182, 64, 64)} else {ctx.strokeRect(WIDTH - 198, HEIGHT - 182, 64, 64)}
     if(player.item[3] !== undefined) {ctx.drawImage(player.item[3].image, WIDTH - 126, HEIGHT - 182, 64, 64)} else {ctx.strokeRect(WIDTH - 126, HEIGHT - 182, 64, 64)}
@@ -781,6 +802,22 @@ generateGas = () => {
         price: (Math.floor(Math.random() * 3 + 1) + Math.floor(day * Math.random()))
     }
 }
+
+generateBuildings = (i) => {
+    let image = new Image()
+    if(Math.random > .5) {
+        image.src = './assets/buildings/house1.jpg'
+    } else {
+        image.src = './assets/buildings/house2.jpg'
+    }
+    return {
+        x: WIDTH + (WIDTH / 2) + (i * 160),
+        y: HEIGHT / 2 - 256,
+        w: 128,
+        h: 256,
+        image: image
+    }
+}
  
 changeColorSky = (hour) => {
     myGradient = ctx.createLinearGradient(0, 0, 0, HEIGHT)
@@ -829,6 +866,7 @@ gasStationBuy = () => {
                     player.money = newPrice
                     let playerItemCopia = player.item
                     playerItemCopia.push(gasItems[1])
+                    player.item = playerItemCopia
                     gasItems[1] = undefined
                 }
                 console.log('item 1')
@@ -841,6 +879,7 @@ gasStationBuy = () => {
                     player.money = newPrice
                     let playerItemCopia = player.item
                     playerItemCopia.push(gasItems[2])
+                    player.item = playerItemCopia
                     gasItems[2] = undefined
                 }
                 console.log('item 2')
@@ -848,7 +887,9 @@ gasStationBuy = () => {
                 console.log('aqui')
                 makeAChoice = false
             }
-    
+
+            console.log(player.item)
+
             mouseX = mouseY = -1
     
             requestAnimationFrame(gasStationBuy)
