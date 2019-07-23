@@ -187,7 +187,7 @@ const colorsOfSky = [
 items = [
     'food 1',
     'food 2',
-    'coffee',
+    'bebidas',
     'energetic',
     'watter',
     'soda',

@@ -8,6 +8,7 @@ let enemies = []
 let obstacles = []
 let clouds = []
 let posts = []
+let gasStation
 let carImage
 let radioImage
 let speedometerImage
@@ -25,6 +26,13 @@ let myGradient
 let foodImage
 let waterImage
 let steakImage
+let gasStationImage
+let fuelImage
+
+let stopGas = false
+let gasItems = []
+let gasPrice
+let noMoney = false
 
 let radios = []
 let selectedStation
@@ -59,6 +67,7 @@ const player = {
     hungry: 2,
     thirst: 4,
     sleep: 4,
+    money: 5,
     item: []
 }
 
@@ -81,8 +90,12 @@ init = () => {
         posts.push(generatePosts(i))
     }
 
-    player.item.push(generateItems())
-    player.item.push(generateItems())
+    let array = []
+    for(let i = 0; i < 2; i++){
+        array.push(generateItems(i))
+    }
+    console.log(array)
+    player.item = array
 
     changeColorSky(hour)
 
@@ -126,6 +139,10 @@ preload = () => {
     waterImage.src = './assets/items/water.png'
     steakImage = new Image()
     steakImage.src = './assets/items/steak.png'
+    gasStationImage = new Image()
+    gasStationImage.src = './assets/buildings/gas_station.png'
+    fuelImage = new Image()
+    fuelImage.src = './assets/items/fuel.png'
 }
 
 update = () => {
@@ -174,6 +191,21 @@ update = () => {
             signs = {}
         }
 
+        if(gasStation !== undefined) {
+            gasStation.x -= 8
+            
+            if(gasStation.x + 300 > car.x && gasStation.x + 292 < car.x){
+                gasItems.push(generateGas())
+                gasItems.push(generateItems())
+                gasItems.push(generateItems())
+                makeAChoice = true
+            }
+            
+            if((gasStation.x + WIDTH / 2) < 0) {
+                gasStation = {}
+            }
+        }
+
         clouds.forEach((cloud, i) => {
             if(cloud.x + cloud.w > -150) {
                 cloud.x -= cloud.speed
@@ -213,7 +245,7 @@ update = () => {
     
         if(Math.floor(time) == timeOfChoices[0]) {
             //do something
-            switch(/*Math.floor(Math.random() * 1)*/ 1) {
+            switch(/*Math.floor(Math.random() * 1)*/ 2) {
                 case 0:
                     hikers.push(generateHiker())
                     for(let i = 0; i < hikers[0].son; i++) {
@@ -224,6 +256,10 @@ update = () => {
                     break
                 case 1:
                     signs = generateSign()
+                    time = 0
+                    break
+                case 2:
+                    gasStation = generateGasStation()
                     time = 0
                     break
             }
@@ -251,51 +287,34 @@ update = () => {
         ctx.strokeRect(WIDTH - 126, HEIGHT - 108, 64, 64)
 
         if( mouseX >= 690 && mouseX <= 754 && mouseY >= 597 && mouseY <= 658) {
-            /*
-            switch(player.item.type){
-                case 'food 1':
-                    player.hungry++
-                    break
-                case 'food 2':
-                    player.hungry = 4
-                    break
-                case 'coffee':
-                    player.sleep++
-                    player.thirst++
-                    break
-                case 'energetic'
-                    player.sleep = 4
-                    player.thisrt++
-                    break
-                case 'watter'
-                    player.thirst = 4
-                    break
-                case 'soda'
-                    player.thirst++
-                    player.hungry--
-                    break
-            }
-            */
+            refreshPlayer(0)
             console.log('Food')
             player.hungry++
         } else if (mouseX >= 762 && mouseX <= 826 && mouseY >= 597 && mouseY <= 658) {
+            refreshPlayer(1)
             console.log("Food2")
             player.hungry = 4
         } else if (mouseX >= 834 && mouseX <= 898 && mouseY >= 597 && mouseY <= 658) {
+            refreshPlayer(2)
             console.log('Thirst')
             player.thirst = 4
         } else if (mouseX >= 907 && mouseX <= 969 && mouseY >= 597 && mouseY <= 658) {
+            refreshPlayer(3)
             console.log('Outro')
         } else if( mouseX >= 690 && mouseX <= 754 && mouseY >= 669 && mouseY <= 733) {
+            refreshPlayer(4)
             console.log('Another')
             player.hungry++
         } else if (mouseX >= 762 && mouseX <= 826 && mouseY >= 669 && mouseY <= 733) {
+            refreshPlayer(5)
             console.log("Mais um")
             player.hungry = 4
         } else if (mouseX >= 834 && mouseX <= 898 && mouseY >= 669 && mouseY <= 733) {
+            refreshPlayer(6)
             console.log('Other')
             player.thirst = 4
         } else if (mouseX >= 907 && mouseX <= 969 && mouseY >= 669 && mouseY <= 733) {
+            refreshPlayer(7)
             console.log('Otro')
         }
     
@@ -312,53 +331,77 @@ update = () => {
 }
 
 makeChoices = () => {
-    if(makeAChoice) {
-        ctx.drawImage(dialogBoxImage, WIDTH / 2 - 260, HEIGHT / 2 - 100, 520, 200)
-        if(hikers.length > 0){
-            ctx.fillStyle = "white"
-            ctx.fillRect(WIDTH / 2 - 220, HEIGHT / 2 - 65, 100, 120)
-            ctx.fillText(hikers[0].name, WIDTH / 2 - 100, HEIGHT / 2 - 45)
-            ctx.fillStyle = "white"
-            ctx.font = "20px Arial"
-            if(hikers[0].son === 0) {
-                ctx.fillText(askPhrases[Math.floor(Math.random() * askPhrases.length)], WIDTH / 2 - 100, HEIGHT / 2 - 10)
-            } else {
-                if(hikers[0].son === 1) {
-                    ctx.fillText(askPhrasesSon[Math.floor(Math.random() * askPhrasesSon.length)], WIDTH / 2 - 100, HEIGHT / 2 - 10)
+    if(stopGas) {
+        gasStationBuy()
+    } else {
+        if(makeAChoice) {
+            let option
+            ctx.drawImage(dialogBoxImage, WIDTH / 2 - 260, HEIGHT / 2 - 100, 520, 200)
+            /**
+             * RIDE
+             */
+            if(hikers.length > 0){
+                option = 'ride'
+                ctx.fillStyle = "white"
+                ctx.fillRect(WIDTH / 2 - 220, HEIGHT / 2 - 65, 100, 120)
+                ctx.fillText(hikers[0].name, WIDTH / 2 - 100, HEIGHT / 2 - 45)
+                ctx.fillStyle = "white"
+                ctx.font = "20px Arial"
+                if(hikers[0].son === 0) {
+                    ctx.fillText(askPhrases[Math.floor(Math.random() * askPhrases.length)], WIDTH / 2 - 100, HEIGHT / 2 - 10)
                 } else {
-                    ctx.fillText(askPhrasesSons[Math.floor(Math.random() * askPhrasesSons.length)], WIDTH / 2 - 100, HEIGHT / 2 - 10)
+                    if(hikers[0].son === 1) {
+                        ctx.fillText(askPhrasesSon[Math.floor(Math.random() * askPhrasesSon.length)], WIDTH / 2 - 100, HEIGHT / 2 - 10)
+                    } else {
+                        ctx.fillText(askPhrasesSons[Math.floor(Math.random() * askPhrasesSons.length)], WIDTH / 2 - 100, HEIGHT / 2 - 10)
+                    }
+                }
+                ctx.fillText(`${hikers[0].place}?`, WIDTH / 2 - 100, HEIGHT / 2 + 15)
+            }
+            /**
+             * GAS STATION
+             */
+            if(gasStation !== undefined) {
+                option = 'gas'
+                ctx.fillText("Gostaria de comprar algo", WIDTH / 2 - 100, HEIGHT / 2 - 10)
+            }
+            
+            ctx.fillStyle = "white"
+            ctx.fillRect(WIDTH / 2 - 50, HEIGHT / 2 + 25, 50, 30)
+            ctx.fillRect(WIDTH / 2 + 50, HEIGHT / 2 + 25, 50, 30)
+            ctx.fillStyle = "black"
+            ctx.font = "20px Arial"
+            ctx.fillText("Sim", WIDTH / 2 - 43, HEIGHT / 2 + 45)
+            ctx.fillText("Não", WIDTH / 2 + 56, HEIGHT / 2 + 45)
+    
+            if(mouseX >= 471 && mouseX <= 520 && mouseY >= 418 && mouseY <= 447) {
+                if(option === 'ride'){
+                    console.log('Yes')
+                    car.places.push(hikers)
+    
+                    hikers = []
+    
+                    makeAChoice = false
+                    mouseX = mouseY = -1
+                } else if(option === 'gas') {
+                    stopGas = true
+                }
+            } else if (mouseX >= 570 && mouseX <= 619 && mouseY >= 418 && mouseY <= 448) {
+                if(option === 'ride'){
+                    console.log('No')
+                    hikers = []
+    
+                    makeAChoice = false
+                    mouseX = mouseY = -1
                 }
             }
-            ctx.fillText(`${hikers[0].place}?`, WIDTH / 2 - 100, HEIGHT / 2 + 15)
+    
+            requestAnimationFrame(makeChoices)
+        } else {
+            update()
         }
-        ctx.fillStyle = "white"
-        ctx.fillRect(WIDTH / 2 - 50, HEIGHT / 2 + 25, 50, 30)
-        ctx.fillRect(WIDTH / 2 + 50, HEIGHT / 2 + 25, 50, 30)
-        ctx.fillStyle = "black"
-        ctx.font = "20px Arial"
-        ctx.fillText("Sim", WIDTH / 2 - 43, HEIGHT / 2 + 45)
-        ctx.fillText("Não", WIDTH / 2 + 56, HEIGHT / 2 + 45)
-
-        if(mouseX >= 471 && mouseX <= 520 && mouseY >= 418 && mouseY <= 447) {
-            console.log('Yes')
-            car.places.push(hikers)
-
-            hikers = []
-
-            makeAChoice = false
-            mouseX = mouseY = -1
-        } else if (mouseX >= 570 && mouseX <= 619 && mouseY >= 418 && mouseY <= 448) {
-            console.log('No')
-            hikers = []
-
-            makeAChoice = false
-            mouseX = mouseY = -1
-        }
-
-        requestAnimationFrame(makeChoices)
-    } else {
-        update()
     }
+    
 }
 
 draw = () => {
@@ -408,28 +451,50 @@ draw = () => {
         ctx.fillRect(signs.x + 12, signs.y, 8, 64)
         switch(signs.type) {
             case 0:
+                ctx.fillRect(signs.x + 12, signs.y, 8, 64)
                 ctx.drawImage(leftSignImage, signs.x, signs.y, 32, 32)
                 break
             case 1:
+                ctx.fillRect(signs.x + 12, signs.y, 8, 64)
                 ctx.drawImage(rightSignImage, signs.x, signs.y, 32, 32)
                 break
             case 2:
+                
                 ctx.drawImage(limitSpeedSign, signs.x, signs.y, 32, 32)
                 ctx.fillStyle = "black"
                 ctx.font = "14px Arial"
                 ctx.fillText("80", signs.x + 8, signs.y + 22)
                 break
             case 3:
+                ctx.fillRect(signs.x + 12, signs.y, 8, 64)
                 ctx.drawImage(rotateSign, signs.x, signs.y, 32, 32)
                 break
             case 4:
+                ctx.fillRect(signs.x + 12, signs.y, 8, 64)
                 //ctx.drawImage(greenSigne, signs.x, signs.y, 32, 32)
                 ctx.drawImage(rotateSign, signs.x, signs.y, 32, 32)
                 break
         }
     }
 
+    /**
+     * GAS STATION
+     */
+    if(gasStation !== undefined) {
+        ctx.drawImage(gasStationImage, gasStation.x - 128, gasStation.y - 256)
+    }
+
     ctx.drawImage(carImage, car.x - 128, car.y - 128)
+
+    if(signs !== {} && signs.type === 5) {
+        ctx.fillStyle = "black"
+        ctx.beginPath();
+        ctx.arc(signs.x + 16, signs.y, 16, 0, 2 * Math.PI);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = "brown"
+        ctx.fillRect(signs.x + 12, signs.y, 8, 64)
+    }
 
     /**
     * AVATARS
@@ -493,25 +558,16 @@ draw = () => {
      */
     ctx.strokeStyle = "white"
     ctx.strokeRect(WIDTH - 352, HEIGHT - 190, 302, 189)
-    console.log(player.item[0])
-    ctx.drawImage(player.item[0].image, WIDTH - 316, HEIGHT - 182, 32, 64)
-    ctx.strokeRect(WIDTH - 342, HEIGHT - 182, 64, 64)
-    ctx.strokeRect(WIDTH - 270, HEIGHT - 182, 64, 64)
-    ctx.strokeRect(WIDTH - 198, HEIGHT - 182, 64, 64)
-    ctx.strokeRect(WIDTH - 126, HEIGHT - 182, 64, 64)
+    if(player.item[0] !== undefined) {ctx.drawImage(player.item[0].image, WIDTH - 342, HEIGHT - 182, 32, 64)} else {ctx.strokeRect(WIDTH - 342, HEIGHT - 182, 32, 64)}
+    if(player.item[1] !== undefined) {ctx.drawImage(player.item[1].image, WIDTH - 270, HEIGHT - 182, 64, 64)} else {ctx.strokeRect(WIDTH - 270, HEIGHT - 182, 64, 64)}
+    if(player.item[2] !== undefined) {ctx.drawImage(player.item[2].image, WIDTH - 198, HEIGHT - 182, 64, 64)} else {ctx.strokeRect(WIDTH - 198, HEIGHT - 182, 64, 64)}
+    if(player.item[3] !== undefined) {ctx.drawImage(player.item[3].image, WIDTH - 126, HEIGHT - 182, 64, 64)} else {ctx.strokeRect(WIDTH - 126, HEIGHT - 182, 64, 64)}
 
-    ctx.strokeRect(WIDTH - 342, HEIGHT - 108, 64, 64)
-    ctx.strokeRect(WIDTH - 270, HEIGHT - 108, 64, 64)
-    ctx.strokeRect(WIDTH - 198, HEIGHT - 108, 64, 64)
-    ctx.strokeRect(WIDTH - 126, HEIGHT - 108, 64, 64)
-    //Food 1
-    //ctx.drawImage(waterImage, WIDTH - 316, HEIGHT - 182, 32, 64)
-    //Food 2
-    //ctx.drawImage(foodImage, WIDTH - 241, HEIGHT - 182, 32, 64)
-    //Watter
-    //ctx.drawImage(steakImage, WIDTH - 166, HEIGHT - 182, 32, 64)
-    //Outro
-    //ctx.drawImage(steakImage, WIDTH - 91, HEIGHT - 182, 32, 64)
+
+    if(player.item[4] !== undefined) {ctx.drawImage(player.item[4].image, WIDTH - 342, HEIGHT - 108, 64, 64)} else {ctx.strokeRect(WIDTH - 342, HEIGHT - 108, 64, 64)}
+    if(player.item[5] !== undefined) {ctx.drawImage(player.item[5].image, WIDTH - 270, HEIGHT - 108, 64, 64)} else {ctx.strokeRect(WIDTH - 270, HEIGHT - 108, 64, 64)}
+    if(player.item[6] !== undefined) {ctx.drawImage(player.item[6].image, WIDTH - 198, HEIGHT - 108, 64, 64)} else {ctx.strokeRect(WIDTH - 198, HEIGHT - 108, 64, 64)}
+    if(player.item[7] !== undefined) {ctx.drawImage(player.item[7].image, WIDTH - 126, HEIGHT - 108, 64, 64)} else {ctx.strokeRect(WIDTH - 126, HEIGHT - 108, 64, 64)}
 }
 
 generateHiker = (surname = '', place = '') => {
@@ -570,11 +626,11 @@ generateKm = () => {
 }
 
 generateSign = () => {
-    let signs = [0, 1, 2, 3, 4]
+    let signs = [0, 1, 2, 3, 4, 5, 5, 5]
     return {
         x: WIDTH + (WIDTH / 2),
         y: HEIGHT / 2 - 64,
-        type: 2//signs[Math.floor(Math.random() * signs.length)]
+        type: signs[Math.floor(Math.random() * signs.length)]
     }
 }
 
@@ -597,64 +653,71 @@ generatePosts = (i) => {
     }
 }
 
-generateItems = () => {
+generateItems = (i) => {
     let image = new Image()
     let type = items[Math.floor(Math.random() * items.length)]
     let brand = Math.floor(Math.random() * 3)
+    let price = []
     console.log(type)
     switch(type) {
         case 'food 1':
+            price.push(1, 2)
             if(brand === 0){
-                image.src = './assets/items/pera.png'
+                image.src = './assets/items/doritos.png'
             } else if ( brand === 1){
-                image.src = './assets/items/pera.png'
+                image.src = './assets/items/apple.png'
             } else {
-                image.src = './assets/items/pera.png'
+                image.src = './assets/items/chocolate.png'
             }
             break
         case 'food 2':
+            price.push(3, 4, 5)
             if(brand === 0){
                 image.src = './assets/items/steak.png'
             } else if ( brand === 1){
-                image.src = './assets/items/steak.png'
+                image.src = './assets/items/pizza.png'
             } else {
-                image.src = './assets/items/steak.png'
+                image.src = './assets/items/sushi.png'
             }
             break
-        case 'coffee':
+        case 'bebidas':
+            price.push(5)
             if(brand === 0){
-                image.src = './assets/items/pera.png'
+                image.src = './assets/items/coffee.png'
             } else if ( brand === 1){
-                image.src = './assets/items/pera.png'
+                image.src = './assets/items/hot_chocolate.png'
             } else {
-                image.src = './assets/items/pera.png'
+                image.src = './assets/items/tea.png'
             }
             break
         case 'energetic':
+            price.push(5, 6)
             if(brand === 0){
-                image.src = './assets/items/pera.png'
+                image.src = './assets/items/monster.png'
             } else if ( brand === 1){
-                image.src = './assets/items/pera.png'
+                image.src = './assets/items/red_bull.png'
             } else {
-                image.src = './assets/items/pera.png'
+                image.src = './assets/items/demon.png'
             }
             break
         case 'watter':
+            price.push(3, 4, 5, 6)
             if(brand === 0){
                 image.src = './assets/items/water.png'
             } else if ( brand === 1){
-                image.src = './assets/items/water.png'
+                image.src = './assets/items/cup.png'
             } else {
-                image.src = './assets/items/water.png'
+                image.src = './assets/items/bottle.png'
             }
             break
         case 'soda':
+            price.push(3, 4, 5)
             if(brand === 0){
-                image.src = './assets/items/pera.png'
+                image.src = './assets/items/coke.png'
             } else if ( brand === 1){
-                image.src = './assets/items/pera.png'
+                image.src = './assets/items/pepsi.png'
             } else {
-                image.src = './assets/items/pera.png'
+                image.src = './assets/items/fanta.png'
             }
             break
         default:
@@ -670,15 +733,134 @@ generateItems = () => {
     return {
         type: type,
         brand: brand,
-        image: image
+        image: image,
+        index: i,
+        price: Math.floor(Math.random() * price.length)
     }
 }
 
+refreshPlayer = (i) => {    
+    switch(player.item.type){
+        case 'food 1':
+            player.hungry++
+            break
+        case 'food 2':
+            player.hungry = 4
+            break
+        case 'bebida':
+            player.sleep++
+            player.thirst++
+            break
+        case 'energetic':
+            player.sleep = 4
+            player.thisrt++
+            break
+        case 'watter':
+            player.thirst = 4
+            break
+        case 'soda':
+            player.thirst++
+            player.hungry--
+            break
+    }
+    
+    console.log('aqui')
+    player.item.splice(i, 1)
+    player.item.sort()
+}
+
+generateGasStation = () => {
+    return {
+        x: WIDTH + (WIDTH / 2),
+        y: HEIGHT / 2 - 64,
+    }
+}
+
+generateGas = () => {
+    return {
+        price: (Math.floor(Math.random() * 3 + 1) + Math.floor(day * Math.random()))
+    }
+}
+ 
 changeColorSky = (hour) => {
     myGradient = ctx.createLinearGradient(0, 0, 0, HEIGHT)
     colorsOfSky[hour].forEach((colors, i) => {
         myGradient.addColorStop(i / colorsOfSky[hour].length, colors)
     })
+}
+
+gasStationBuy = () => {
+    if(!makeAChoice) {
+        console.log(makeAChoice)
+        stopGas = false
+        makeAChoice = false
+        update()
+    } else {
+        if(!noMoney) {
+            ctx.drawImage(dialogBoxImage, WIDTH / 2 - 260, HEIGHT / 2 - 100, 520, 200)
+            if(gasItems[0] !== undefined) ctx.drawImage(fuelImage ,WIDTH / 2 - 220, HEIGHT / 2 - 65, 100, 100)
+            if(gasItems[1] !== undefined) ctx.drawImage(gasItems[1].image ,WIDTH / 2 - 60, HEIGHT / 2 - 65, 100, 100)
+            if(gasItems[2] !== undefined) ctx.drawImage(gasItems[2].image ,WIDTH / 2 + 120, HEIGHT / 2 - 65, 100, 100)
+            ctx.fillStyle = "black"
+            if(gasItems[0] !== undefined) ctx.fillText(gasItems[0].price, WIDTH / 2 - 185, HEIGHT / 2 + 60)
+            if(gasItems[1] !== undefined) ctx.fillText(gasItems[1].price, WIDTH / 2 - 10, HEIGHT / 2 + 60)
+            if(gasItems[2] !== undefined) ctx.fillText(gasItems[2].price, WIDTH / 2 + 170, HEIGHT / 2 + 60)
+    
+            ctx.fillStyle = "white"
+            ctx.fillRect(WIDTH / 2 - 50, HEIGHT / 2 + 100, 100, 50)
+            ctx.fillStyle = "black"
+            ctx.fillText("Voltar", WIDTH / 2 - 25, HEIGHT / 2 + 125)
+    
+            if(mouseX >= WIDTH / 2 - 220 && mouseX <= WIDTH / 2 - 120 && mouseY >= HEIGHT / 2 - 65 && mouseY <= HEIGHT / 2 + 35) {
+                let newPrice = player.money - gasItems[0].price
+                if(newPrice < 0) {
+                    
+                } else {
+                    player.money = newPrice
+                    car.fuelLeft += Math.floor(Math.random() - 16 - day)
+                    gasItems[0] = undefined
+                }
+                console.log('buy gas')
+            } else if(mouseX >= WIDTH / 2 - 60 && mouseX <= WIDTH / 2 + 40 && mouseY >= HEIGHT / 2 - 65 && mouseY <= HEIGHT / 2 + 35) {
+                let newPrice = player.money - gasItems[1].price
+                if(newPrice < 0) {
+                    
+                } else {
+                    player.money = newPrice
+                    let playerItemCopia = player.item
+                    playerItemCopia.push(gasItems[1])
+                    gasItems[1] = undefined
+                }
+                console.log('item 1')
+            }
+            else if(mouseX >= WIDTH / 2 + 120 && mouseX <= WIDTH / 2 + 220 && mouseY >= HEIGHT / 2 - 65 && mouseY <= HEIGHT / 2 + 35) {
+                let newPrice = player.money - gasItems[2].price
+                if(newPrice < 0) {
+                    
+                } else {
+                    player.money = newPrice
+                    let playerItemCopia = player.item
+                    playerItemCopia.push(gasItems[2])
+                    gasItems[2] = undefined
+                }
+                console.log('item 2')
+            } else if(mouseX >= 470 && mouseX <= 570 && mouseY >= 493 && mouseY <= 543) {
+                console.log('aqui')
+                makeAChoice = false
+            }
+    
+            mouseX = mouseY = -1
+    
+            requestAnimationFrame(gasStationBuy)
+        } else{
+            if(noMoney) errorBox("Você não tem dinheiro suficiente")
+        } 
+    }
+}
+
+errorBox = (message) => {
+    ctx.drawImage(dialogBoxImage, WIDTH / 2 - 260, HEIGHT / 2 - 100, 520, 200)
+    ctx.fillText(message, WIDTH / 2 - (message.length / 2), HEIGHT / 2 - 10)
 }
 
 handler = (e) => {
@@ -701,7 +883,6 @@ addZeros = (text) => {
     while (r.length < 7) {
         r = "0" + r;
     }
-    console.log(r)
     return r;
 }
 
