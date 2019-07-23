@@ -198,3 +198,12 @@ items = [
  * DIA 1
  * 22/03/1964
  */
+
+
+/**
+ * Se foi bom encontra a familia viva
+ */
+
+/**
+ * Se foi ruim quando chega em casa a familia foi infectada
+ */
