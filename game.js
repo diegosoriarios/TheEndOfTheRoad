@@ -9,6 +9,7 @@ let obstacles = []
 let city = []
 let clouds = []
 let posts = []
+let cityPlaces = []
 let gasStation
 let carImage
 let radioImage
@@ -37,6 +38,7 @@ let chooseTheft = false
 let gasItems = []
 let gasPrice
 let noMoney = false
+let stopTheft = true
 
 let radios = []
 let selectedStation
@@ -227,7 +229,12 @@ update = () => {
         })
 
         if(city.length > 0) {
+            console.log(minutes)
             if(city[0].x < 0 ) {
+                cityPlaces.push(generateCityPlaces())
+                cityPlaces.push(generateCityPlaces())
+                cityPlaces.push(generateCityPlaces())
+                
                 makeAChoice = true
             }
         }
@@ -251,7 +258,6 @@ update = () => {
          * TIME
          */
         if(Math.floor(minutes) === 6.0) {
-            minutes -= 6.0
             hour++
             car.fuelLeft--
             if(hour === 24) {
@@ -419,8 +425,10 @@ makeChoices = () => {
                     } else if(option === 'gas') {
                         minutes += .5
                         stopGas = true
+                        mouseX = mouseY = -1
                     } else if(option === 'city') {
                         stopSleep = true
+                        mouseX = mouseY = -1
                     }
                 } else if (mouseX >= 570 && mouseX <= 619 && mouseY >= 418 && mouseY <= 448) {
                     if(option === 'ride'){
@@ -431,8 +439,10 @@ makeChoices = () => {
                         mouseX = mouseY = -1
                     }else if (option === 'gas') {
                         stopGas = false
+                        mouseX = mouseY = -1
                     } else if(option === 'city') {
                         stopSleep = false
+                        mouseX = mouseY = -1
                     }
                 }
         
@@ -842,6 +852,22 @@ generateBuildings = (i) => {
         image: image
     }
 }
+
+generateCityPlaces = () => {
+    let danger = [1, 2, 3, 4]
+    let dangerValue = danger[Math.floor(Math.random() * 4)]
+    let max = dangerValue + 1
+    let min = dangerValue - 1
+    console.log(max, min)
+    let qtdItems = Math.floor(Math.random() * max + min)
+    console.log(qtdItems)
+    return {
+        name: places[Math.floor(Math.random() * places.length)],
+        danger: dangerValue,
+        qtdItems: qtdItems,
+        items: []
+    }
+}
  
 changeColorSky = (hour) => {
     myGradient = ctx.createLinearGradient(0, 0, 0, HEIGHT)
@@ -925,7 +951,7 @@ gasStationBuy = () => {
 
 sleepOrNot = () => {
     if(!makeAChoice) {
-        stopsleep = false
+        stopSleep = false
         makeAChoice = false
         update()
     } else {
@@ -950,6 +976,7 @@ sleepOrNot = () => {
                     chooseSleep = true
                     console.log('make sleep')
                 } else if (mouseX >= 570 && mouseX <= 670 && mouseY >= 418 && mouseY <= 448) {
+                    stopTheft = false
                     chooseTheft = true
                 }
                 
@@ -968,9 +995,132 @@ makeSleep = () => {
     ctx.fillRect(WIDTH / 2 - 60, HEIGHT / 2 - 65, 100, 100)
     ctx.fillRect(WIDTH / 2 + 120, HEIGHT / 2 - 65, 100, 100)
     ctx.fillStyle = "black"
-    ctx.fillText(places[Math.floor(Math.random() * places.length)], WIDTH / 2 - 200, HEIGHT / 2 + 60)
-    ctx.fillText(places[Math.floor(Math.random() * places.length)], WIDTH / 2 - 50, HEIGHT / 2 + 60)
-    ctx.fillText(places[Math.floor(Math.random() * places.length)], WIDTH / 2 + 200, HEIGHT / 2 + 60)
+    ctx.fillText("2 Horas", WIDTH / 2 - 200, HEIGHT / 2 + 60)
+    ctx.fillText("5 Horas", WIDTH / 2 - 50, HEIGHT / 2 + 60)
+    ctx.fillText("8 Horas", WIDTH / 2 + 150, HEIGHT / 2 + 60)
+
+    if(mouseX >= WIDTH / 2 - 220 && mouseX <= WIDTH / 2 - 120 && mouseY >= HEIGHT / 2 - 65 && mouseY <= HEIGHT / 2 + 35) {
+        player.sleep++
+        minutes += 12.0
+        chooseSleep = false
+        makeAChoice = false
+    } else if(mouseX >= WIDTH / 2 - 60 && mouseX <= WIDTH / 2 + 40 && mouseY >= HEIGHT / 2 - 65 && mouseY <= HEIGHT / 2 + 35) {
+        player.sleep += 2
+        minutes += 30.0
+        chooseSleep = false
+        makeAChoice = false
+    } else if(mouseX >= WIDTH / 2 + 120 && mouseX <= WIDTH / 2 + 220 && mouseY >= HEIGHT / 2 - 65 && mouseY <= HEIGHT / 2 + 35) {
+        player.sleep = 4
+        minutes += 48.0
+        chooseSleep = false
+        makeAChoice = false
+    }
+    mouseX = mouseY = -1
+
+    requestAnimationFrame(makeSleep)
+}
+
+makeTheft = () => {
+    if(stopTheft) {
+        stopSleep = false
+        makeAChoice = false
+        update()
+    } else {
+        ctx.drawImage(dialogBoxImage, WIDTH / 2 - 260, HEIGHT / 2 - 100, 520, 200)
+        ctx.fillStyle = "white"
+        ctx.fillRect(WIDTH / 2 - 220, HEIGHT / 2 - 65, 100, 100)
+        ctx.fillRect(WIDTH / 2 - 60, HEIGHT / 2 - 65, 100, 100)
+        ctx.fillRect(WIDTH / 2 + 120, HEIGHT / 2 - 65, 100, 100)
+        ctx.fillStyle = "black"
+        ctx.fillText(cityPlaces[0].name, WIDTH / 2 - 200, HEIGHT / 2 + 60)
+        ctx.fillText(cityPlaces[1].name, WIDTH / 2 - 50, HEIGHT / 2 + 60)
+        ctx.fillText(cityPlaces[2].name, WIDTH / 2 + 150, HEIGHT / 2 + 60)
+    
+        let index = player.item.length - 1
+
+        if(mouseX >= 300 && mouseX <= 400 && mouseY >= 330 && mouseY <= 430) {
+            console.log(cityPlaces[0].qtdItems)
+            let items = []
+            for(let i = 0; i < cityPlaces[0].qtdItems; i++) {
+                if(Math.random() > .85){
+                    let image = new Image()
+                    image.src = './assets/items/fuel.png'
+                    let price = [5, 6]
+                    let gas = {
+                        type: 'gas',
+                        brand: 1,
+                        image: image,
+                        index: index + items.length,
+                        price: Math.floor(Math.random() * price.length)
+                    }
+                    items.push(gas)
+                } else {
+                    items.push(generateItems(index + items.length))
+                }
+            }
+            player.item.concat(items)
+            console.log(player)
+            hour += 3
+            chooseTheft = false
+            makeAChoice = false
+            stopTheft = true
+        } else if(mouseX >= 460 && mouseX <= 560 && mouseY >= 330 && mouseY <= 430) {
+            console.log(2)
+            let items = []
+            for(let i = 0; i < cityPlaces[1].qtdItems; i++) {
+                if(Math.random() > .85){
+                    let image = new Image()
+                    image.src = './assets/items/fuel.png'
+                    let price = [5, 6]
+                    let gas = {
+                        type: 'gas',
+                        brand: 1,
+                        image: image,
+                        index: index + items.length,
+                        price: Math.floor(Math.random() * price.length)
+                    }
+                    items.push(gas)
+                } else {
+                    items.push(generateItems(index + items.length))
+                }
+            }
+            player.item = player.item.concat(items)
+            console.log(player)
+            hour += 3
+            chooseTheft = false
+            makeAChoice = false
+            stopTheft = true
+        } else if(mouseX >= 640 && mouseX <= 740 && mouseY >= 330 && mouseY <= 430) {
+            console.log(3)
+            let items = []
+            for(let i = 0; i < cityPlaces[2].qtdItems; i++) {
+                if(Math.random() > .85){
+                    let image = new Image()
+                    image.src = './assets/items/fuel.png'
+                    let price = [5, 6]
+                    let gas = {
+                        type: 'gas',
+                        brand: 1,
+                        image: image,
+                        index: index + items.length,
+                        price: Math.floor(Math.random() * price.length)
+                    }
+                    items.push(gas)
+                } else {
+                    items.push(generateItems(index + items.length))
+                }
+            }
+            player.item.concat(items)
+            console.log(player)
+            hour += 3
+            chooseTheft = false
+            makeAChoice = false
+            stopTheft = true
+        }
+        mouseX = mouseY = -1
+    
+        requestAnimationFrame(makeTheft)
+    }
 }
 
 messageBox = (message) => {

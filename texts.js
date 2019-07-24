@@ -200,9 +200,8 @@ places = [
     'Casa',
     'Apartamento',
     'Supermercado',
-    'Posto de gasolina'
+    'Delegacia'
 ]
-
 
 /**
  * DIA 1
