@@ -32,8 +32,9 @@ let gasStationImage
 let fuelImage
 
 let stopGas = false
-let stopSleep = false
+let chooseStop = false
 let chooseSleep = false
+let timeToSleep = false
 let chooseTheft = false
 let gasItems = []
 let gasPrice
@@ -45,7 +46,7 @@ let selectedStation
 let mouseX, mouseY
 
 let time = 0
-let hour = 9    
+let hour = 22    
 let minutes = 0
 let clock = 0
 let day = 1
@@ -230,7 +231,7 @@ update = () => {
 
         if(city.length > 0) {
             console.log(minutes)
-            if(city[0].x < 0 ) {
+            if(city[0].x < 0 && hour === 22) {
                 cityPlaces.push(generateCityPlaces())
                 cityPlaces.push(generateCityPlaces())
                 cityPlaces.push(generateCityPlaces())
@@ -261,7 +262,7 @@ update = () => {
             hour++
             car.fuelLeft--
             if(hour === 24) {
-                hour = 0
+                hour -= 24
                 day++
             }
             changeColorSky(hour)
@@ -365,7 +366,7 @@ makeChoices = () => {
     if(stopGas) {
         gasStationBuy()
     } else {
-        if(stopSleep) {
+        if(chooseStop) {
             sleepOrNot()
         } else {
             if(makeAChoice) {
@@ -427,7 +428,7 @@ makeChoices = () => {
                         stopGas = true
                         mouseX = mouseY = -1
                     } else if(option === 'city') {
-                        stopSleep = true
+                        chooseStop = true
                         mouseX = mouseY = -1
                     }
                 } else if (mouseX >= 570 && mouseX <= 619 && mouseY >= 418 && mouseY <= 448) {
@@ -441,7 +442,7 @@ makeChoices = () => {
                         stopGas = false
                         mouseX = mouseY = -1
                     } else if(option === 'city') {
-                        stopSleep = false
+                        chooseStop = false
                         mouseX = mouseY = -1
                     }
                 }
@@ -951,7 +952,7 @@ gasStationBuy = () => {
 
 sleepOrNot = () => {
     if(!makeAChoice) {
-        stopSleep = false
+        chooseStop = false
         makeAChoice = false
         update()
     } else {
@@ -989,40 +990,56 @@ sleepOrNot = () => {
 }
 
 makeSleep = () => {
-    ctx.drawImage(dialogBoxImage, WIDTH / 2 - 260, HEIGHT / 2 - 100, 520, 200)
-    ctx.fillStyle = "white"
-    ctx.fillRect(WIDTH / 2 - 220, HEIGHT / 2 - 65, 100, 100)
-    ctx.fillRect(WIDTH / 2 - 60, HEIGHT / 2 - 65, 100, 100)
-    ctx.fillRect(WIDTH / 2 + 120, HEIGHT / 2 - 65, 100, 100)
-    ctx.fillStyle = "black"
-    ctx.fillText("2 Horas", WIDTH / 2 - 200, HEIGHT / 2 + 60)
-    ctx.fillText("5 Horas", WIDTH / 2 - 50, HEIGHT / 2 + 60)
-    ctx.fillText("8 Horas", WIDTH / 2 + 150, HEIGHT / 2 + 60)
+    if(timeToSleep) {
+        chooseStop = false
+        makeAChoice = false
+        update()
+    } else {
+        ctx.drawImage(dialogBoxImage, WIDTH / 2 - 260, HEIGHT / 2 - 100, 520, 200)
+        ctx.fillStyle = "white"
+        ctx.fillRect(WIDTH / 2 - 220, HEIGHT / 2 - 65, 100, 100)
+        ctx.fillRect(WIDTH / 2 - 60, HEIGHT / 2 - 65, 100, 100)
+        ctx.fillRect(WIDTH / 2 + 120, HEIGHT / 2 - 65, 100, 100)
+        ctx.fillStyle = "black"
+        ctx.fillText("2 Horas", WIDTH / 2 - 200, HEIGHT / 2 + 60)
+        ctx.fillText("5 Horas", WIDTH / 2 - 50, HEIGHT / 2 + 60)
+        ctx.fillText("8 Horas", WIDTH / 2 + 150, HEIGHT / 2 + 60)
 
-    if(mouseX >= WIDTH / 2 - 220 && mouseX <= WIDTH / 2 - 120 && mouseY >= HEIGHT / 2 - 65 && mouseY <= HEIGHT / 2 + 35) {
-        player.sleep++
-        minutes += 12.0
-        chooseSleep = false
-        makeAChoice = false
-    } else if(mouseX >= WIDTH / 2 - 60 && mouseX <= WIDTH / 2 + 40 && mouseY >= HEIGHT / 2 - 65 && mouseY <= HEIGHT / 2 + 35) {
-        player.sleep += 2
-        minutes += 30.0
-        chooseSleep = false
-        makeAChoice = false
-    } else if(mouseX >= WIDTH / 2 + 120 && mouseX <= WIDTH / 2 + 220 && mouseY >= HEIGHT / 2 - 65 && mouseY <= HEIGHT / 2 + 35) {
-        player.sleep = 4
-        minutes += 48.0
-        chooseSleep = false
-        makeAChoice = false
+        if(mouseX >= WIDTH / 2 - 220 && mouseX <= WIDTH / 2 - 120 && mouseY >= HEIGHT / 2 - 65 && mouseY <= HEIGHT / 2 + 35) {
+            player.sleep++
+            hour += 2
+            if(hour > 23){
+                hour -= 24
+            }
+            changeColorSky(hour)
+            console.log('2')
+            timeToSleep = true
+        } else if(mouseX >= WIDTH / 2 - 60 && mouseX <= WIDTH / 2 + 40 && mouseY >= HEIGHT / 2 - 65 && mouseY <= HEIGHT / 2 + 35) {
+            player.sleep += 2
+            hour += 5
+            if(hour > 23){
+                hour -= 24
+            }
+            changeColorSky(hour)
+            timeToSleep = true
+        } else if(mouseX >= WIDTH / 2 + 120 && mouseX <= WIDTH / 2 + 220 && mouseY >= HEIGHT / 2 - 65 && mouseY <= HEIGHT / 2 + 35) {
+            player.sleep = 4
+            hour += 8
+            if(hour > 23){
+                hour -= 24
+            }
+            changeColorSky(hour)
+            timeToSleep = true
+        }
+        mouseX = mouseY = -1
+
+        requestAnimationFrame(makeSleep)
     }
-    mouseX = mouseY = -1
-
-    requestAnimationFrame(makeSleep)
 }
 
 makeTheft = () => {
     if(stopTheft) {
-        stopSleep = false
+        chooseStop = false
         makeAChoice = false
         update()
     } else {
@@ -1041,7 +1058,7 @@ makeTheft = () => {
         if(mouseX >= 300 && mouseX <= 400 && mouseY >= 330 && mouseY <= 430) {
             console.log(cityPlaces[0].qtdItems)
             let items = []
-            for(let i = 0; i < cityPlaces[0].qtdItems; i++) {
+            for(let i =x0; i < cityPlaces[0].qtdItems; i++) {
                 if(Math.random() > .85){
                     let image = new Image()
                     image.src = './assets/items/fuel.png'
@@ -1061,6 +1078,7 @@ makeTheft = () => {
             player.item.concat(items)
             console.log(player)
             hour += 3
+            changeColorSky(hour)
             chooseTheft = false
             makeAChoice = false
             stopTheft = true
@@ -1087,6 +1105,7 @@ makeTheft = () => {
             player.item = player.item.concat(items)
             console.log(player)
             hour += 3
+            changeColorSky(hour)
             chooseTheft = false
             makeAChoice = false
             stopTheft = true
@@ -1113,6 +1132,7 @@ makeTheft = () => {
             player.item.concat(items)
             console.log(player)
             hour += 3
+            changeColorSky(hour)
             chooseTheft = false
             makeAChoice = false
             stopTheft = true
