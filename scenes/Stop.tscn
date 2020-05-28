@@ -1,0 +1,50 @@
+[gd_scene format=2]
+
+[node name="Stop" type="Node2D"]
+
+[node name="Panel" type="Panel" parent="."]
+margin_right = 304.0
+margin_bottom = 152.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Nao" type="Button" parent="."]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = 42.7071
+margin_top = 120.546
+margin_right = 131.707
+margin_bottom = 140.546
+text = "Não"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Sim" type="Button" parent="."]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = 174.583
+margin_top = 121.607
+margin_right = 263.583
+margin_bottom = 141.607
+text = "Sim"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Description" type="Label" parent="."]
+margin_left = 96.0
+margin_top = 56.0
+margin_right = 219.0
+margin_bottom = 70.0
+text = "Você deseja parar?"
+autowrap = true
+max_lines_visible = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}

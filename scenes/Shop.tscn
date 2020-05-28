@@ -1,0 +1,90 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://icon.png" type="Texture" id=1]
+
+[node name="Shop" type="Node2D"]
+
+[node name="Panel" type="Panel" parent="."]
+margin_right = 304.0
+margin_bottom = 152.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Nao" type="Button" parent="."]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = 102.811
+margin_top = 123.728
+margin_right = 191.811
+margin_bottom = 143.728
+text = "Cancelar"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+margin_left = 16.0
+margin_top = 10.0
+margin_right = 284.0
+margin_bottom = 115.0
+alignment = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="TextureButton" type="TextureButton" parent="HBoxContainer"]
+margin_left = 17.0
+margin_right = 92.0
+margin_bottom = 105.0
+rect_min_size = Vector2( 75, 75 )
+texture_normal = ExtResource( 1 )
+expand = true
+
+[node name="Label" type="Label" parent="HBoxContainer/TextureButton"]
+margin_left = 17.8787
+margin_top = 89.0502
+margin_right = 56.8787
+margin_bottom = 103.05
+text = "Name"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="TextureButton2" type="TextureButton" parent="HBoxContainer"]
+margin_left = 96.0
+margin_right = 171.0
+margin_bottom = 105.0
+rect_min_size = Vector2( 75, 75 )
+texture_normal = ExtResource( 1 )
+expand = true
+
+[node name="Label" type="Label" parent="HBoxContainer/TextureButton2"]
+margin_left = 17.8787
+margin_top = 89.0502
+margin_right = 56.8787
+margin_bottom = 103.05
+text = "Name"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="TextureButton3" type="TextureButton" parent="HBoxContainer"]
+margin_left = 175.0
+margin_right = 250.0
+margin_bottom = 105.0
+rect_min_size = Vector2( 75, 75 )
+texture_normal = ExtResource( 1 )
+expand = true
+
+[node name="Label" type="Label" parent="HBoxContainer/TextureButton3"]
+margin_left = 17.8787
+margin_top = 89.0502
+margin_right = 56.8787
+margin_bottom = 103.05
+text = "Name"
+__meta__ = {
+"_edit_use_anchors_": false
+}

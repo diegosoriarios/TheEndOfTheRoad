@@ -1,0 +1,22 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://assets/sign/limite.png" type="Texture" id=1]
+[ext_resource path="res://scripts/Placa.gd" type="Script" id=2]
+
+[node name="Placa" type="Node2D"]
+scale = Vector2( 0.2, 0.2 )
+z_index = -1
+script = ExtResource( 2 )
+
+[node name="ColorRect" type="ColorRect" parent="."]
+margin_left = -13.636
+margin_top = 53.2928
+margin_right = 10.364
+margin_bottom = 272.293
+color = Color( 0.262745, 0.184314, 0.0235294, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="limite" type="Sprite" parent="."]
+texture = ExtResource( 1 )
